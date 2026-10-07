@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { getActiveProvider } from '../data/providerRegistry.js'
 import { getIrrigationController, buildIrrigationPlan } from '../api/irrigationController.js'
 import { useTestSettings } from './useTestSettings.js'
+import { useCropSim } from './useCropSim.js'
 import Dashboard from './components/Dashboard.jsx'
 import SettingsPanel from './components/SettingsPanel.jsx'
 import ApplyDialog from './components/ApplyDialog.jsx'
@@ -16,6 +17,7 @@ const TABS = [
 
 export default function App() {
   const state = useTestSettings()
+  const sim = useCropSim(state.preview)
   const provider = getActiveProvider()
   const controller = useMemo(() => getIrrigationController(), [])
   const snapshot = useMemo(() => provider.getSnapshot(state.preview), [provider, state.preview])
@@ -79,7 +81,7 @@ export default function App() {
 
       <main id="main" className="layout" data-tab={tab}>
         <div id="pane-dashboard" role="tabpanel" aria-labelledby="tab-dashboard" className={`pane ${tab === 'dashboard' ? 'show' : ''}`}>
-          <Dashboard snapshot={snapshot} settings={state.preview} onApply={apply} />
+          <Dashboard snapshot={snapshot} settings={state.preview} onApply={apply} sim={sim} />
         </div>
         <div id="pane-brake" role="tabpanel" aria-labelledby="tab-brake" className={`pane ${tab === 'brake' ? 'show' : ''}`}>
           <BrakeSim baseIrrigation={state.preview.baseIrrigation} onApplyToSettings={applyLevel} />

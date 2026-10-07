@@ -3,6 +3,7 @@ import { labelOf, PERIODS, WEATHERS, SOURCE } from '../../domain/model.js'
 import { simulateDay } from '../../domain/simulation.js'
 import GreenhouseScene from './GreenhouseScene.jsx'
 import TrendChart from './TrendChart.jsx'
+import GrowthSimCard from './GrowthSimCard.jsx'
 
 const WEATHER_ICON = { clear: '☀️', cloudy: '☁️', rain: '🌧️', snow: '❄️' }
 
@@ -20,11 +21,13 @@ function brixBand(b) {
   return { label: '낮음', cls: 'band-low' }
 }
 
-export default function Dashboard({ snapshot, settings, onApply }) {
+export default function Dashboard({ snapshot, settings, onApply, sim }) {
   const { climate, context, irrigation, quality } = snapshot
-  const brix = quality.brix.value
+  const simActive = sim.started
+  const brix = simActive ? Math.round(sim.brix * 10) / 10 : quality.brix.value
   const band = brixBand(brix)
-  const sim = useMemo(() => simulateDay(settings), [settings])
+  const sceneSettings = simActive ? { ...settings, period: sim.periodNow } : settings
+  const day = useMemo(() => simulateDay(settings), [settings])
   const BRIX_MAX = 15
 
   return (
@@ -34,12 +37,17 @@ export default function Dashboard({ snapshot, settings, onApply }) {
       {/* 당도 — 핵심 지표 */}
       <article className="card brix-card" aria-labelledby="brix-label">
         <div className="card-head">
-          <h3 id="brix-label">당도 (Brix)</h3>
-          <SourceTag source={quality.brix.source} />
+          <h3 id="brix-label">당도 (Brix){simActive && <small className="muted"> · 시뮬레이션 {sim.running ? '진행 중' : '일시정지'}</small>}</h3>
+          {simActive ? <span className="chip chip-sim">시뮬레이션값</span> : <SourceTag source={quality.brix.source} />}
         </div>
         <p className="brix-value" aria-live="polite">
           <strong>{brix.toFixed(1)}</strong>
           <span className="unit">°Bx</span>
+          {simActive && (
+            <span className={`delta ${brix - sim.startBrix >= 0 ? 'up' : 'down'}`}>
+              {brix - sim.startBrix >= 0 ? '▲' : '▼'} {Math.abs(brix - sim.startBrix).toFixed(1)}
+            </span>
+          )}
           <span className={`band ${band.cls}`}>{band.label}</span>
         </p>
         <div className="meter" role="meter" aria-valuemin={0} aria-valuemax={BRIX_MAX} aria-valuenow={brix} aria-label="당도 막대">
@@ -49,11 +57,15 @@ export default function Dashboard({ snapshot, settings, onApply }) {
         </div>
         <p className="hint">
           참고 구간(토마토 예시): 6 미만 낮음 · 6~8 보통 · 8 이상 고당도.{' '}
-          {quality.brix.source === SOURCE.TEST && '당도 센서가 연결되지 않아 입력한 테스트값을 보여 줍니다.'}
+          {simActive
+            ? `테스트값 ${sim.startBrix.toFixed(1)}°Bx에서 시작한 시뮬레이션 결과입니다. 실제 측정값이 아닙니다.`
+            : quality.brix.source === SOURCE.TEST && '당도 센서가 연결되지 않아 입력한 테스트값을 보여 줍니다.'}
         </p>
       </article>
 
-      <GreenhouseScene s={settings} finalIrrigation={irrigation.final.value} />
+      <GrowthSimCard sim={sim} baseBrixInput={quality.brix.value} />
+
+      <GreenhouseScene s={sceneSettings} finalIrrigation={irrigation.final.value} />
 
       <div className="grid">
         <article className="card">
@@ -133,19 +145,19 @@ export default function Dashboard({ snapshot, settings, onApply }) {
         <TrendChart
           title="온도 24시간 추이"
           unit="°C"
-          nowHour={sim.nowHour}
+          nowHour={day.nowHour}
           series={[
-            { name: '내부', color: 'var(--c-green)', values: sim.points.map((p) => p.insideTemp) },
-            { name: '외부', color: 'var(--c-blue)', values: sim.points.map((p) => p.outsideTemp) },
+            { name: '내부', color: 'var(--c-green)', values: day.points.map((p) => p.insideTemp) },
+            { name: '외부', color: 'var(--c-blue)', values: day.points.map((p) => p.outsideTemp) },
           ]}
         />
         <TrendChart
           title="내부 습도 24시간 추이"
           unit="%"
-          nowHour={sim.nowHour}
+          nowHour={day.nowHour}
           min={0}
           max={100}
-          series={[{ name: '내부 습도', color: 'var(--c-teal)', values: sim.points.map((p) => p.insideHumidity) }]}
+          series={[{ name: '내부 습도', color: 'var(--c-teal)', values: day.points.map((p) => p.insideHumidity) }]}
         />
       </div>
       <p className="hint center">그래프는 현재 테스트값을 기준으로 만든 예시 추이이며 실제 기록이 아닙니다.</p>

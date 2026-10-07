@@ -107,3 +107,30 @@ describe('24시간 추이', () => {
     expect(points[nowHour].insideTemp).toBe(DEFAULT_SETTINGS.insideTemp)
   })
 })
+
+import { evaluateConditions, stepBrix, vpd, clicksForWater, plantSignal } from '../src/domain/brixModel.js'
+describe('당도 반응 모형', () => {
+  const good = { ...DEFAULT_SETTINGS, insideTemp: 26, insideHumidity: 72, baseIrrigation: 400, irrigationReduction: 100, period: 'day', weather: 'clear' }
+  const bad = { ...DEFAULT_SETTINGS, insideTemp: 34, insideHumidity: 95, baseIrrigation: 400, irrigationReduction: 0, period: 'day', weather: 'rain' }
+  it('좋은 조건이면 목표 당도가 기본보다 높다', () => expect(evaluateConditions(good).target).toBeGreaterThan(8))
+  it('나쁜 조건이면 목표 당도가 기본보다 낮다', () => expect(evaluateConditions(bad).target).toBeLessThan(4.5))
+  it('시간이 흐르면 목표 쪽으로 이동한다', () => {
+    const up = stepBrix(6, 9, 48)
+    const down = stepBrix(8, 4, 48)
+    expect(up).toBeGreaterThan(6.5)
+    expect(up).toBeLessThan(9)
+    expect(down).toBeLessThan(7.5)
+  })
+  it('VPD 계산', () => expect(vpd(25, 70)).toBeCloseTo(0.95, 1))
+  it('과도한 감량은 오히려 당도 기여가 줄어든다', () => {
+    const t = (r) => evaluateConditions({ ...good, irrigationReduction: r }).target
+    expect(t(120)).toBeGreaterThan(t(0))
+    expect(t(320)).toBeLessThan(t(140))
+  })
+  it('클릭 수·판정은 발표 작동 원리와 일치', () => {
+    expect(clicksForWater(80)).toBe(1.6)
+    expect(plantSignal(30).state).toBe('brake')
+    expect(plantSignal(40).state).toBe('alarm')
+    expect(plantSignal(10).state).toBe('continue')
+  })
+})
