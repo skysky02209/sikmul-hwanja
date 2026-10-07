@@ -1,0 +1,22 @@
+{
+  "name": "sikmul-hwanja-app",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "식물환자 — 재배 환경·관수 시뮬레이션 대시보드 (테스트 모드)",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "4.3.3",
+    "vite": "5.4.10",
+    "vitest": "2.1.4"
+  }
+}

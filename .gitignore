@@ -1,0 +1,5 @@
+node_modules
+.DS_Store
+deploy_log.txt
+*.local
+.env
