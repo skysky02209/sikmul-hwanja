@@ -347,3 +347,30 @@ svg .th-target { stroke: var(--c-gold); stroke-width: 2; stroke-dasharray: 6 4; 
 .app.demo-on { padding-bottom: 190px; }
 @keyframes pop-in { 0% { transform: scale(0.97); box-shadow: 0 0 0 4px color-mix(in srgb, var(--c-green) 35%, transparent); } 100% { transform: none; box-shadow: none; } }
 .verdict.pop { animation: pop-in 0.5s ease-out; }
+
+/* 감량 단계 버튼 */
+.steps li { flex: 1; display: flex; }
+.step-btn { flex: 1; border: 2px solid transparent; cursor: pointer; display: grid; gap: 2px; justify-items: center; min-height: 52px; font: inherit; font-weight: 800; }
+.step-btn:hover { border-color: var(--c-green); }
+.step-btn .step-dot { font-size: 11px; line-height: 1; }
+.step-btn.picked { border-color: var(--c-gold, #F2C14E); box-shadow: 0 0 0 2px color-mix(in srgb, #F2C14E 50%, transparent); }
+.step-hint { margin: 6px 0 0; }
+.level-detail { margin-top: 10px; padding: 12px; border-radius: 12px; background: var(--c-surface-2); border-left: 4px solid var(--c-green); display: grid; gap: 6px; }
+.level-detail.st-brake { border-left-color: var(--c-warn); }
+.level-detail.st-alarm { border-left-color: var(--c-danger); background: var(--c-danger-soft); }
+.level-detail-head { display: flex; justify-content: space-between; align-items: center; }
+.level-detail-head strong { font-size: 16px; }
+.btn-sm { min-height: 32px; padding: 4px 10px; font-size: 13px; }
+.level-verdict { margin: 0; font-weight: 800; }
+.level-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin: 0; }
+.level-grid div { background: var(--c-bg); border-radius: 8px; padding: 6px 8px; }
+.level-grid dt { font-size: 12px; color: var(--c-muted); }
+.level-grid dd { margin: 0; font-weight: 800; font-size: 14px; }
+.level-grid small { font-weight: 600; color: var(--c-sub); }
+@media (max-width: 420px) { .level-grid { grid-template-columns: 1fr 1fr; } }
+.row-click { cursor: pointer; }
+.row-picked { outline: 2px solid #F2C14E; outline-offset: -2px; }
+
+.bar-pick { fill: color-mix(in srgb, #F2C14E 28%, transparent); }
+.level-grid { margin-top: 10px; }
+.level-grid .wide { grid-column: 1 / -1; }

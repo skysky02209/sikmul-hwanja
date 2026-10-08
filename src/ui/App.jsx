@@ -163,11 +163,11 @@ export default function App() {
   }
   useEffect(() => () => demoTimers.current.forEach(clearTimeout), [])
 
-  const onBrakeSignal = (st, day) =>
+  const onBrakeSignal = (st, info) =>
     mail.notify(st, {
-      source: `감량 관리 · ${day.day}일차`,
-      level: day.level,
-      clicks: day.clicks,
+      source: `감량 관리 · 관수 ${info.level}% 선택`,
+      level: info.level,
+      clicks: info.clicks,
       insideTemp: state.preview.insideTemp,
       insideHumidity: state.preview.insideHumidity,
     })
