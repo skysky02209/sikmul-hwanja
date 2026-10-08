@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { getActiveProvider } from '../data/providerRegistry.js'
 import { getIrrigationController, buildIrrigationPlan } from '../api/irrigationController.js'
 import { useTestSettings } from './useTestSettings.js'
@@ -8,6 +8,8 @@ import SettingsPanel from './components/SettingsPanel.jsx'
 import ApplyDialog from './components/ApplyDialog.jsx'
 import BrakeSim from './components/BrakeSim.jsx'
 import { LEVEL_MODEL } from '../domain/brakeSim.js'
+import { useAlertMail } from './useAlertMail.js'
+import AlertMailCard from './components/AlertMailCard.jsx'
 
 const TABS = [
   { id: 'dashboard', label: '대시보드' },
@@ -27,6 +29,33 @@ export default function App() {
   const [log, setLog] = useState([])
 
   const announce = (r) => setStatus((s) => ({ id: s.id + 1, text: r.message }))
+  const mail = useAlertMail({ onStatus: (m) => announce({ message: m }) })
+
+  // 식물환자 판정이 경보·멈춤으로 바뀌는 순간 메일 알림
+  const prevSignal = useRef(sim.conditions.signal.state)
+  useEffect(() => {
+    const st = sim.conditions.signal.state
+    if (st !== prevSignal.current && (st === 'alarm' || st === 'brake')) {
+      mail.notify(st, {
+        source: '대시보드 · 생육 예측',
+        deficit: sim.conditions.deficit,
+        clicks: sim.conditions.signal.clicks,
+        brix: Math.round(sim.brix * 10) / 10,
+        insideTemp: state.preview.insideTemp,
+        insideHumidity: state.preview.insideHumidity,
+      })
+    }
+    prevSignal.current = st
+  }, [sim.conditions.signal.state]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const onBrakeSignal = (st, day) =>
+    mail.notify(st, {
+      source: `감량 관리 · ${day.day}일차`,
+      level: day.level,
+      clicks: day.clicks,
+      insideTemp: state.preview.insideTemp,
+      insideHumidity: state.preview.insideHumidity,
+    })
 
   const applyLevel = (level) => {
     const base = state.preview.baseIrrigation
@@ -54,7 +83,10 @@ export default function App() {
             <p>재배 환경 · 관수 대시보드</p>
           </div>
         </div>
-        <span className="chip chip-mode">테스트 모드</span>
+        <div className="top-chips">
+          {mail.prefs.enabled && mail.emailOk && <span className="chip chip-live" title={mail.prefs.email}>📧 메일 알림 켜짐</span>}
+          <span className="chip chip-mode">테스트 모드</span>
+        </div>
       </header>
 
       <div className="banner" role="note">
@@ -84,7 +116,7 @@ export default function App() {
           <Dashboard snapshot={snapshot} settings={state.preview} onApply={apply} sim={sim} />
         </div>
         <div id="pane-brake" role="tabpanel" aria-labelledby="tab-brake" className={`pane ${tab === 'brake' ? 'show' : ''}`}>
-          <BrakeSim baseIrrigation={state.preview.baseIrrigation} onApplyToSettings={applyLevel} />
+          <BrakeSim baseIrrigation={state.preview.baseIrrigation} onApplyToSettings={applyLevel} onSignal={onBrakeSignal} />
         </div>
         <div id="pane-settings" role="tabpanel" aria-labelledby="tab-settings" className={`pane ${tab === 'settings' ? 'show' : ''}`}>
           <SettingsPanel
@@ -93,6 +125,7 @@ export default function App() {
             onReset={() => announce(state.reset())}
             onRevert={() => announce(state.revert())}
           />
+          <AlertMailCard mail={mail} />
         </div>
       </main>
 

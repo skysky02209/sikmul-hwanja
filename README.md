@@ -25,6 +25,14 @@
 - 저장 위치: 브라우저 localStorage `sikmul-hwanja.testSettings.v1` (손상된 값은 무시하고 기본값 사용)
 - 접근성: 모든 입력에 라벨·오류 문구 연결(aria-describedby), 결과 영역 aria-live, 키보드 탭/대화상자, 44px 터치 영역, 다크 모드, 움직임 줄이기 대응
 
+## 경보 메일 알림
+
+- '테스트 설정' 탭 아래 **경보 메일 알림**에서 받을 주소를 입력하고 '경보가 뜨면 메일 받기'를 켭니다. (주소는 이 브라우저 localStorage에만 저장)
+- 식물환자 판정이 **경보**(초음파 15회/시간 이상)로 바뀌면 메일을 보냅니다. '감량 멈춤 신호도 받기'를 켜면 멈춤 신호(대조의 3배 이상)도 보냅니다. 같은 종류는 10분에 한 번만.
+- 정적 사이트라 비밀키 없이 쓸 수 있는 **FormSubmit**(https://formsubmit.co) AJAX 주소로 보냅니다(`src/api/alertMailer.js`). **처음 한 번은 받는 메일함으로 온 FormSubmit 활성화 메일의 버튼을 눌러야** 이후 메일이 도착합니다.
+- 자체 서버로 바꾸려면 `formSubmitTransport`를 같은 모양(`send({to, subject, body}) → {ok, message}`)의 다른 전송기로 교체하면 됩니다.
+- 외부 서비스 없이 보내려면 '메일 앱으로 열기'(mailto) 버튼을 씁니다.
+
 ## 실행
 
 ```bash

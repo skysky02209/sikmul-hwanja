@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { LEVELS, THRESHOLDS, CONTROL_CLICKS_PER_HOUR, runDays, outcomeTable, LEVEL_MODEL, incomeAt } from '../../domain/brakeSim.js'
 
 const STATE_TEXT = {
@@ -64,10 +64,13 @@ function ClickChart({ history }) {
   )
 }
 
-export default function BrakeSim({ baseIrrigation, onApplyToSettings }) {
+export default function BrakeSim({ baseIrrigation, onApplyToSettings, onSignal }) {
   const [days, setDays] = useState(0)
   const { history, stoppedAt } = useMemo(() => runDays(days), [days])
   const today = history[history.length - 1]
+  useEffect(() => {
+    if (today && !today.held && today.state !== 'continue') onSignal?.(today.state, today)
+  }, [history.length]) // eslint-disable-line react-hooks/exhaustive-deps
   const table = useMemo(() => outcomeTable(), [])
   const currentLevel = stoppedAt ?? today?.level ?? 100
   const nextLevel = stoppedAt ?? LEVELS[Math.min(history.length, LEVELS.length - 1)]

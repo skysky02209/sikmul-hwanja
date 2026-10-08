@@ -298,3 +298,10 @@ svg .th-target { stroke: var(--c-gold); stroke-width: 2; stroke-dasharray: 6 4; 
   .sim-stats { grid-template-columns: 1fr 1fr; }
   .sim-stats > div:last-child { grid-column: span 2; }
 }
+
+/* 경보 메일 */
+.top-chips { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.alert-mail { margin-top: 14px; }
+.mail-title { font-size: 16px; color: var(--c-text); }
+.alert-mail input[type='email'] { width: 100%; min-height: 44px; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--c-line); background: var(--c-bg); font-size: 16px; }
+.alert-mail a.btn { display: inline-flex; align-items: center; text-decoration: none; color: inherit; }
