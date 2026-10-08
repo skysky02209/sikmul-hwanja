@@ -17,6 +17,16 @@ const ALARM_PRESET = { baseIrrigation: 400, irrigationReduction: 160, insideTemp
 // 정상: 기본 테스트값과 같은 환경, 감량 10%
 const NORMAL_PRESET = { baseIrrigation: 400, irrigationReduction: 40, insideTemp: 24, insideHumidity: 70, period: 'day', weather: 'clear' }
 
+// 발표 시연 모드 — 관수 브레이크 이야기를 약 20초에 자동으로 보여 준다 (테스트값 · 실제 측정 아님)
+const DEMO_STEPS = [
+  { at: 0, title: '준비', text: '물 충분(감량 10%) · 시작 당도 6.5°Bx · 아직 덜 자란 토마토', preset: { ...NORMAL_PRESET, brix: 6.5 }, run: false },
+  { at: 3000, title: '1~3일차 · 감량', text: '하루 한 계단씩 물을 줄입니다 (감량 20%) → 당도가 오르고 토마토가 차오릅니다', preset: { irrigationReduction: 80 }, run: true },
+  { at: 12000, title: '4일차 · 🟠 멈춤 신호', text: '감량 25%에서 초음파 소리가 대조 구역의 3배 → "오늘은 감량 멈춤" 알림', preset: { irrigationReduction: 100 } },
+  { at: 15000, title: '5일차 · 🔴 경보', text: '고온·건조(32℃·40%)에 감량 40% → 소리 급증(32회/시간) → 즉시 관수 경보 메일', preset: ALARM_PRESET },
+  { at: 18000, title: '6~7일차 · 한 계단 복귀', text: '바로 관수하고 감량 20%로 되돌립니다 → 정상으로 돌아오고 당도가 다시 오릅니다', preset: { ...NORMAL_PRESET, irrigationReduction: 80 } },
+  { at: 24500, title: '시연 끝', text: '소리로 "멈출 지점"을 찾아 당도는 올리고, 작물은 지킵니다.', end: true },
+]
+
 const TABS = [
   { id: 'dashboard', label: '대시보드' },
   { id: 'brake', label: '감량 관리' },
@@ -116,6 +126,41 @@ export default function App() {
     announce({ message: '정상 값으로 되돌렸습니다. 다시 ‘경보 상황 만들어 보기’를 누르면 경보 메일이 갑니다.' })
   }
 
+  // ── 발표 시연 모드 ──
+  const [demo, setDemo] = useState({ on: false, step: -1 })
+  const demoTimers = useRef([])
+  const stopDemo = (keep = false) => {
+    demoTimers.current.forEach(clearTimeout)
+    demoTimers.current = []
+    sim.pause()
+    sim.setSpeed(6)
+    if (!keep) setDemo({ on: false, step: -1 })
+  }
+  const startDemo = () => {
+    stopDemo(true)
+    sim.reset()
+    setTab('dashboard')
+    setPresetWhy(null)
+    DEMO_STEPS.forEach((st, i) => {
+      demoTimers.current.push(
+        setTimeout(() => {
+          setDemo({ on: true, step: i })
+          if (st.preset) Object.entries(st.preset).forEach(([k, v]) => state.update(k, String(v)))
+          if (i === 0) setTimeout(() => document.querySelector('.sim-card')?.scrollIntoView?.({ behavior: 'smooth', block: 'start' }), 100)
+          if (st.run) {
+            sim.setSpeed(8)
+            sim.start()
+          }
+          if (st.end) {
+            sim.pause()
+            sim.setSpeed(6)
+          }
+        }, st.at),
+      )
+    })
+  }
+  useEffect(() => () => demoTimers.current.forEach(clearTimeout), [])
+
   const onBrakeSignal = (st, day) =>
     mail.notify(st, {
       source: `감량 관리 · ${day.day}일차`,
@@ -162,6 +207,13 @@ export default function App() {
         <span className="banner-src"> 데이터 출처: {provider.label}</span>
       </div>
 
+      <div className="demo-launch">
+        <button type="button" className="btn btn-primary" onClick={startDemo} disabled={demo.on && !DEMO_STEPS[demo.step]?.end}>
+          🎬 발표 시연 시작 (약 25초 · 7일)
+        </button>
+        <span className="hint">감량 → 당도 상승 → 🟠 멈춤 → 🔴 경보 → 복귀를 자동으로 보여 줍니다{mail.prefs.enabled ? ' · 경보 메일도 실제로 보냅니다' : ''}</span>
+      </div>
+
       <nav className="tabs" role="tablist" aria-label="화면 선택">
         {TABS.map((t) => (
           <button
@@ -196,6 +248,20 @@ export default function App() {
           <AlertMailCard mail={mail} onTriggerAlarm={triggerAlarm} onResetNormal={resetNormal} presetWhy={presetWhy} />
         </div>
       </main>
+
+      {demo.on && (
+        <div className={`demo-bar ${DEMO_STEPS[demo.step]?.end ? 'end' : ''}`} role="status" aria-live="polite">
+          <div className="demo-dots" aria-hidden="true">
+            {DEMO_STEPS.map((st, i) => <span key={st.title} className={i <= demo.step ? 'on' : ''} />)}
+          </div>
+          <strong>{DEMO_STEPS[demo.step]?.title}</strong>
+          <p>{DEMO_STEPS[demo.step]?.text}</p>
+          <div className="demo-actions">
+            {DEMO_STEPS[demo.step]?.end && <button type="button" className="btn btn-primary" onClick={startDemo}>↻ 다시 보기</button>}
+            <button type="button" className="btn" onClick={() => stopDemo()}>{DEMO_STEPS[demo.step]?.end ? '닫기' : '■ 시연 멈추기'}</button>
+          </div>
+        </div>
+      )}
 
       <p className="sr-only" role="status" aria-live="polite">{status.text}</p>
       {status.text && (

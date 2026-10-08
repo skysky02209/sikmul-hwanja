@@ -6,8 +6,8 @@ const SKY = {
 }
 
 /**
- * 과실(딸기) 모양 — 설정값이 아니라 '생육 예측'의 진행에 따라 바뀐다 (실제 측정 아님)
- * - 예측을 시작하기 전에는 아직 덜 자란 홀쭉한 딸기
+ * 과실(토마토) 모양 — 설정값이 아니라 '생육 예측'의 진행에 따라 바뀐다 (실제 측정 아님)
+ * - 예측을 시작하기 전에는 아직 덜 자란 홀쭉한 토마토
  * - 예측을 돌려 당도가 오르면 점점 통통하고 진한 빨강이 된다 (약 3일에 걸쳐 차오름)
  * - 조건이 나빠 당도가 떨어지면 다시 홀쭉해진다
  */
@@ -16,17 +16,16 @@ export function fruitLook(brix, hours = 0) {
   const p = hours > 0 ? level * Math.min(1, hours / 72) : 0
   const sx = 0.62 + 0.88 * p // 홀쭉 → 통통
   const sy = 0.9 + 0.5 * p
-  const color = p >= 0.66 ? '#C1121F' : p >= 0.33 ? '#E63946' : p > 0.1 ? '#F28482' : '#F4A6A6'
+  const color = p >= 0.66 ? '#C62828' : p >= 0.33 ? '#E53935' : p > 0.1 ? '#F08A5D' : '#9CCC65'
   const label = hours === 0 ? '홀쭉 · 예측 전' : level < 0.33 ? '홀쭉 · 당도 낮음' : p >= 0.66 ? '통통 · 고당도' : '차오르는 중'
   const tone = hours > 0 && level < 0.33 ? 'warn' : p >= 0.66 ? 'good' : 'neutral'
   return { sx, sy, color, label, tone, p }
 }
 
-/** 딸기 모양 (cx, cy 중심, 높이 약 22) */
-function strawberryPath(cx, cy) {
-  return `M${cx} ${cy - 9} C${cx + 10} ${cy - 11} ${cx + 12} ${cy - 1} ${cx + 7} ${cy + 6} C${cx + 4} ${cy + 10} ${cx + 1} ${cy + 13} ${cx} ${cy + 13} C${cx - 1} ${cy + 13} ${cx - 4} ${cy + 10} ${cx - 7} ${cy + 6} C${cx - 12} ${cy - 1} ${cx - 10} ${cy - 11} ${cx} ${cy - 9} Z`
+/** 토마토 모양 (cx, cy 중심, 지름 약 22, 위가 살짝 들어간 납작한 원) */
+function tomatoPath(cx, cy) {
+  return `M${cx} ${cy - 8} C${cx + 6} ${cy - 12} ${cx + 12} ${cy - 8} ${cx + 11} ${cy} C${cx + 10} ${cy + 8} ${cx + 5} ${cy + 10} ${cx} ${cy + 10} C${cx - 5} ${cy + 10} ${cx - 10} ${cy + 8} ${cx - 11} ${cy} C${cx - 12} ${cy - 8} ${cx - 6} ${cy - 12} ${cx} ${cy - 8} Z`
 }
-const SEEDS = [[-5, -3], [0, -4], [5, -3], [-3, 2], [3, 2], [-5, 6], [0, 6], [5, 6], [-2, 10], [2, 10]]
 
 function etaText(h) {
   return h < 24 ? `${h}시간` : `${Math.round((h / 24) * 10) / 10}일`
@@ -99,12 +98,11 @@ export default function GreenhouseScene({ s, finalIrrigation, fruitBrix = s.brix
               <ellipse cx={x + 11} cy="212" rx="12" ry="6" fill={leaf} style={{ ...anim, transformOrigin: 'left center', transform: `rotate(${droop}deg)` }} />
               <line x1={x + 4} y1="214" x2={x + 4} y2="226" stroke="#2E7D32" strokeWidth="2" />
               <g style={{ ...anim, transform: `scale(${fruit.sx}, ${fruit.sy})` }}>
-                {/* 딸기 */}
-                <path d={strawberryPath(x + 4, 237)} fill={fruit.color} style={anim} />
-                {SEEDS.map(([dx, dy]) => (
-                  <ellipse key={`${dx}${dy}`} cx={x + 4 + dx} cy={237 + dy} rx="0.9" ry="1.3" fill="#F7D774" />
-                ))}
-                <path d={`M${x + 4} 228 l-6 -1 l4 3 l-3 3 l5 -2 l5 2 l-3 -3 l4 -3 z`} fill="#2E7D32" />
+                {/* 토마토 */}
+                <path d={tomatoPath(x + 4, 238)} fill={fruit.color} style={anim} />
+                <path d={`M${x + 4} 229 q-1 9 0 18`} stroke="rgba(0,0,0,0.12)" strokeWidth="1.2" fill="none" />
+                <ellipse cx={x} cy="233" rx="2.6" ry="1.8" fill="#FFFFFF" opacity="0.5" />
+                <path d={`M${x + 4} 229 l-6 -1 l4 2.5 l-3 3 l5 -2 l5 2 l-3 -3 l4 -2.5 z`} fill="#2E7D32" />
               </g>
             </g>
           ))}
@@ -131,7 +129,7 @@ export default function GreenhouseScene({ s, finalIrrigation, fruitBrix = s.brix
         {/* 라벨: 과실 상태 */}
         <g>
           <rect x="10" y="146" width="136" height="112" rx="10" fill="rgba(255,255,255,0.94)" stroke={FRUIT_TONE[fruit.tone]} strokeWidth="2" />
-          <text x="22" y="164" fontSize="12" fontWeight="700" fill="#16302B">🍓 과실 상태</text>
+          <text x="22" y="164" fontSize="12" fontWeight="700" fill="#16302B">🍅 과실 상태</text>
           <text x="138" y="164" fontSize="12" fontWeight="800" fill="#17704A" textAnchor="end">{simHours > 0 ? `${Math.floor(simHours / 24) + 1}일째` : '시작 전'}</text>
           <text x="22" y="188" fontSize="20" fontWeight="800" fill={FRUIT_TONE[fruit.tone]}>{fruitBrix.toFixed(1)}°Bx</text>
           <text x="22" y="207" fontSize="12" fontWeight="700" fill={FRUIT_TONE[fruit.tone]}>{fruit.label}</text>
@@ -150,7 +148,7 @@ export default function GreenhouseScene({ s, finalIrrigation, fruitBrix = s.brix
           )}
         </g>
       </svg>
-      <figcaption className="scene-cap">테스트값으로 그린 화면입니다 · 실제 온실 영상이 아닙니다 · 딸기는 처음엔 홀쭉하고, 위 ‘생육 예측’을 돌려 당도가 오르면 통통해집니다 · 잎이 처지면 물 부족입니다</figcaption>
+      <figcaption className="scene-cap">테스트값으로 그린 화면입니다 · 실제 온실 영상이 아닙니다 · 토마토는 처음엔 홀쭉하고, 위 ‘생육 예측’을 돌려 당도가 오르면 통통해집니다 · 잎이 처지면 물 부족입니다</figcaption>
     </figure>
   )
 }

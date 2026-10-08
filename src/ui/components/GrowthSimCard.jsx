@@ -1,5 +1,6 @@
 import { SPEEDS, formatElapsed, formatDuration } from '../useCropSim.js'
 import { BASE_BRIX } from '../../domain/brixModel.js'
+import PlantSound from './PlantSound.jsx'
 
 const TONE_ICON = { good: '▲', bad: '▼', warn: '▽', neutral: '•' }
 const SIGNAL_CLS = { continue: 'st-ok', brake: 'st-brake', alarm: 'st-alarm' }
@@ -153,6 +154,7 @@ export default function GrowthSimCard({ sim, baseBrixInput }) {
           관수 감량 {conditions.deficit}% → 예상 초음파 {conditions.signal.clicks}회/시간 (대조 0.6회) · 예상 수량 {conditions.yieldPct}%
         </span>
       </div>
+      <PlantSound clicks={conditions.signal.clicks} state={conditions.signal.state} />
       <p className="hint">
         당도만 보면 더 말릴수록 좋아 보이지만 수량이 줄어듭니다. 식물환자는 소리가 늘어나는 지점에서 감량을 멈춰 당도와 수량의 균형을 잡습니다.
         {hours === 0 && ` 시작 당도는 테스트 설정의 당도(${baseBrixInput}°Bx)입니다.`}

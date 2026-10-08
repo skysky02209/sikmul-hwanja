@@ -4,6 +4,7 @@ import { evaluateConditions, stepBrix, periodAtHour, hoursToReach } from '../dom
 export const SPEEDS = [
   { value: 1, label: '1시간/초' },
   { value: 6, label: '6시간/초' },
+  { value: 8, label: '8시간/초 (시연)' },
   { value: 24, label: '1일/초' },
 ]
 const MAX_HOURS = 24 * 30 // 30일
@@ -91,6 +92,8 @@ export function useCropSim(settings) {
     day: hours > 0 ? Math.floor(hours / 24) + 1 : 0,
     running,
     toggle: () => setRunning((r) => !r),
+    start: () => setRunning(true),
+    pause: () => setRunning(false),
     reset,
     speed,
     setSpeed,
