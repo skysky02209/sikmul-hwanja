@@ -23,7 +23,9 @@ const KIND_LABEL = { alarm: '🔴 경보 — 즉시 관수 필요', brake: '🟠
 /** 메일 제목·본문 만들기 (순수 함수) */
 export function buildAlertMessage({ kind, details = {}, appUrl, at = new Date() }) {
   const time = at.toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' })
-  const subject = `[식물환자] ${KIND_LABEL[kind] ?? kind}`
+  // 시각을 제목에 넣어 Gmail이 이전 메일과 한 대화로 묶지 않게 한다 (새 메일로 바로 보이게)
+  const hm = at.toLocaleTimeString('ko-KR', { timeZone: 'Asia/Seoul', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })
+  const subject = `[식물환자] ${KIND_LABEL[kind] ?? kind} (${hm})`
   const lines = [
     '식물환자 앱에서 보낸 알림입니다.',
     '',
@@ -44,8 +46,17 @@ export function buildAlertMessage({ kind, details = {}, appUrl, at = new Date() 
   return { subject, body: lines.join('\n') }
 }
 
-/** 같은 종류의 메일이 너무 자주 가지 않게 막는다 (기본 10분) */
-export function shouldSend({ kind, enabled, includeBrake, lastSent = {}, now = Date.now(), cooldownMs = 10 * 60 * 1000 }) {
+/** 같은 종류 메일의 최소 간격 — 테스트 모드라 1분 (실제 운영 시 10분 권장) */
+export const COOLDOWN_MS = 60 * 1000
+
+/** 다음 메일까지 남은 시간(ms). 0이면 바로 보낼 수 있다 */
+export function cooldownLeft({ kind, lastSent = {}, now = Date.now(), cooldownMs = COOLDOWN_MS }) {
+  if (kind === ALERT_KIND.TEST) return 0
+  return Math.max(0, (lastSent[kind] ?? 0) + cooldownMs - now)
+}
+
+/** 같은 종류의 메일이 너무 자주 가지 않게 막는다 */
+export function shouldSend({ kind, enabled, includeBrake, lastSent = {}, now = Date.now(), cooldownMs = COOLDOWN_MS }) {
   if (!enabled) return false
   if (kind === ALERT_KIND.BRAKE && !includeBrake) return false
   if (kind === ALERT_KIND.TEST) return true

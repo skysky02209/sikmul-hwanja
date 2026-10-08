@@ -269,7 +269,8 @@ svg .bar-control { fill: var(--c-muted); }
 .sim-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
 .sim-stats > div { background: var(--c-surface-2); border-radius: 12px; padding: 8px 10px; display: grid; gap: 2px; }
 .sim-stats .lbl { font-size: 12px; color: var(--c-muted); }
-.sim-stats strong { font-size: 20px; }
+.sim-stats > div { min-width: 0; }
+.sim-stats strong { font-size: clamp(15px, 4.4vw, 20px); white-space: nowrap; font-variant-numeric: tabular-nums; overflow: hidden; text-overflow: ellipsis; }
 .sim-stats .brix-now { color: var(--c-green); }
 .sim-stats .sub { font-size: 12px; color: var(--c-sub); }
 .sim-stats .sub.up { color: var(--c-green); font-weight: 700; }

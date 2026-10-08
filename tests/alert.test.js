@@ -20,10 +20,16 @@ describe('경보 메일', () => {
     expect(shouldSend({ kind: 'brake', enabled: true, includeBrake: false })).toBe(false)
     expect(shouldSend({ kind: 'brake', enabled: true, includeBrake: true })).toBe(true)
   })
-  it('10분 안에 같은 경보는 다시 보내지 않는다', () => {
+  it('1분 안에 같은 경보는 다시 보내지 않는다', () => {
     const now = 1_000_000_000
-    expect(shouldSend({ kind: 'alarm', enabled: true, lastSent: { alarm: now - 60_000 }, now })).toBe(false)
-    expect(shouldSend({ kind: 'alarm', enabled: true, lastSent: { alarm: now - 11 * 60_000 }, now })).toBe(true)
+    expect(shouldSend({ kind: 'alarm', enabled: true, lastSent: { alarm: now - 30_000 }, now })).toBe(false)
+    expect(shouldSend({ kind: 'alarm', enabled: true, lastSent: { alarm: now - 61_000 }, now })).toBe(true)
+  })
+  it('메일 제목에 시각이 들어가 Gmail에서 새 메일로 보인다', () => {
+    const a = buildAlertMessage({ kind: 'alarm', at: new Date('2026-10-08T01:30:02Z') })
+    const b = buildAlertMessage({ kind: 'alarm', at: new Date('2026-10-08T01:31:05Z') })
+    expect(a.subject).not.toBe(b.subject)
+    expect(a.subject).toContain('10:30:02')
   })
   it('FormSubmit 주소로 POST 한다', async () => {
     const fetchImpl = vi.fn(async () => ({ ok: true, status: 200, json: async () => ({ success: 'true', message: 'The form was submitted successfully.' }) }))

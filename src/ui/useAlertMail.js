@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { ALERT_KIND, buildAlertMessage, formSubmitTransport, isValidEmail, shouldSend } from '../api/alertMailer.js'
+import { ALERT_KIND, buildAlertMessage, cooldownLeft, formSubmitTransport, isValidEmail, shouldSend } from '../api/alertMailer.js'
 
 const KEY = 'sikmul-hwanja.alertMail.v1'
 const DEFAULTS = { email: '', enabled: false, includeBrake: true }
@@ -38,8 +38,16 @@ export function useAlertMail({ onStatus } = {}) {
 
   const notify = useCallback(
     async (kind, details = {}) => {
-      if (!emailOk) return null
-      if (!shouldSend({ kind, enabled: prefs.enabled || kind === ALERT_KIND.TEST, includeBrake: prefs.includeBrake, lastSent: lastSent.current })) return null
+      const name = kind === ALERT_KIND.ALARM ? '경보' : kind === ALERT_KIND.BRAKE ? '멈춤 신호' : '테스트'
+      if (!emailOk || !(prefs.enabled || kind === ALERT_KIND.TEST)) {
+        if (kind !== ALERT_KIND.TEST) onStatus?.(`${name}가 떴지만 메일 알림이 꺼져 있어 보내지 않았습니다. 테스트 설정 아래에서 메일 주소를 넣고 알림을 켜 주세요.`)
+        return null
+      }
+      if (!shouldSend({ kind, enabled: true, includeBrake: prefs.includeBrake, lastSent: lastSent.current })) {
+        const left = Math.ceil(cooldownLeft({ kind, lastSent: lastSent.current }) / 1000)
+        if (left > 0) onStatus?.(`${name} 메일을 방금 보냈습니다. 같은 메일은 1분에 한 번만 보냅니다 — ${left}초 뒤 다시 시험해 주세요.`)
+        return null
+      }
       lastSent.current = { ...lastSent.current, [kind]: Date.now() }
       const msg = buildAlertMessage({ kind, details, appUrl: window.location.origin + window.location.pathname })
       setSending(true)
@@ -53,7 +61,7 @@ export function useAlertMail({ onStatus } = {}) {
       const entry = { at: new Date().toISOString(), kind, ok: result.ok, message: result.message, subject: msg.subject }
       setLog((l) => [entry, ...l].slice(0, 10))
       setLastResult(result)
-      onStatus?.(result.message)
+      onStatus?.(result.ok ? `${name} 메일을 보냈습니다. Gmail 받은편지함을 확인해 주세요. (${msg.subject})` : result.message)
       return result
     },
     [emailOk, prefs.email, prefs.enabled, prefs.includeBrake, onStatus],

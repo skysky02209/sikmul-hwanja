@@ -9,22 +9,28 @@ function BrixLine({ history, maxHours, target }) {
   const H = 120
   const P = { l: 28, r: 8, t: 10, b: 20 }
   const span = Math.max(48, history[history.length - 1]?.h ?? 0)
-  const lo = 3
-  const hi = 12
+  const maxB = Math.max(target, ...history.map((p) => p.b))
+  const minB = Math.min(target, ...history.map((p) => p.b))
+  const lo = Math.min(3, Math.floor(minB) - 1)
+  const hi = Math.max(12, Math.ceil(maxB) + 1)
   const x = (h) => P.l + (h / span) * (W - P.l - P.r)
   const y = (b) => P.t + (1 - (b - lo) / (hi - lo)) * (H - P.t - P.b)
   const pts = history.map((p) => `${x(p.h)},${y(p.b)}`).join(' ')
   const days = Math.ceil(span / 24)
+  // 날짜 눈금은 최대 7개만 — 10일 이상이 되어도 글자가 겹치지 않게 간격을 넓힌다
+  const step = days <= 7 ? 1 : days <= 14 ? 2 : days <= 21 ? 3 : 5
+  const dayTicks = Array.from({ length: Math.floor(days / step) + 1 }, (_, i) => i * step)
+  const yTicks = Array.from({ length: Math.floor((hi - lo) / 2) + 1 }, (_, i) => lo + (lo % 2) + i * 2).filter((t) => t <= hi)
   return (
     <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`당도 변화 그래프: ${history[0].b.toFixed(1)}°Bx에서 ${history[history.length - 1].b.toFixed(1)}°Bx, 목표 ${target}°Bx`}>
-      {[4, 6, 8, 10, 12].map((t) => (
+      {yTicks.map((t) => (
         <g key={t}>
           <line x1={P.l} x2={W - P.r} y1={y(t)} y2={y(t)} className="gridline" />
           <text x={P.l - 5} y={y(t) + 3} textAnchor="end" className="axis">{t}</text>
         </g>
       ))}
-      {Array.from({ length: days + 1 }, (_, d) => (
-        <text key={d} x={x(d * 24)} y={H - 5} textAnchor="middle" className="axis">{d}일</text>
+      {dayTicks.map((d) => (
+        <text key={d} x={Math.min(x(d * 24), W - P.r - 8)} y={H - 5} textAnchor="middle" className="axis">{d}일</text>
       ))}
       <line x1={P.l} x2={W - P.r} y1={y(target)} y2={y(target)} className="th th-target" />
       <polyline points={pts} fill="none" stroke="var(--c-green)" strokeWidth="3" strokeLinejoin="round" strokeLinecap="round" />

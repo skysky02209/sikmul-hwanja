@@ -17,7 +17,7 @@ export default function AlertMailCard({ mail, onTriggerAlarm }) {
     <section className="group alert-mail" aria-labelledby="mail-title">
       <h3 id="mail-title" className="mail-title">📧 경보 메일 알림</h3>
       <p className="hint">
-        식물환자 판정이 <strong>경보</strong>(또는 감량 멈춤)로 바뀌면 입력한 주소로 메일을 보냅니다. 같은 종류의 메일은 10분에 한 번만 보냅니다.
+        식물환자 판정이 <strong>경보</strong>(또는 감량 멈춤)로 바뀌면 입력한 주소로 메일을 보냅니다. 경보 중에 관수 값을 다시 바꿔도 다시 보냅니다. 같은 종류의 메일은 1분에 한 번만 보냅니다.
       </p>
       <form className="mail-form" onSubmit={turnOnAndTest} noValidate>
         <div className="field">

@@ -31,11 +31,13 @@ export default function App() {
   const announce = (r) => setStatus((s) => ({ id: s.id + 1, text: r.message }))
   const mail = useAlertMail({ onStatus: (m) => announce({ message: m }) })
 
-  // 식물환자 판정이 경보·멈춤으로 바뀌는 순간 메일 알림
-  const prevSignal = useRef(sim.conditions.signal.state)
+  // 식물환자 판정이 경보·멈춤으로 바뀌거나, 경보 중에 관수 값을 바꿔 다시 경보가 나면 메일 알림
+  const prevSignal = useRef({ st: sim.conditions.signal.state, base: state.preview.baseIrrigation, red: state.preview.irrigationReduction })
   useEffect(() => {
     const st = sim.conditions.signal.state
-    if (st !== prevSignal.current && (st === 'alarm' || st === 'brake')) {
+    const prev = prevSignal.current
+    const waterChanged = prev.base !== state.preview.baseIrrigation || prev.red !== state.preview.irrigationReduction
+    if ((st === 'alarm' || st === 'brake') && (st !== prev.st || waterChanged)) {
       mail.notify(st, {
         source: '대시보드 · 생육 예측',
         deficit: sim.conditions.deficit,
@@ -45,8 +47,8 @@ export default function App() {
         insideHumidity: state.preview.insideHumidity,
       })
     }
-    prevSignal.current = st
-  }, [sim.conditions.signal.state]) // eslint-disable-line react-hooks/exhaustive-deps
+    prevSignal.current = { st, base: state.preview.baseIrrigation, red: state.preview.irrigationReduction }
+  }, [sim.conditions.signal.state, state.preview.baseIrrigation, state.preview.irrigationReduction]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // 경보 상황 만들어 보기: 관수 감량을 40%로 바꿔 실제 경보를 띄운다 (판정이 바뀌면 위 effect가 메일 발송)
   const triggerAlarm = () => {
@@ -64,7 +66,6 @@ export default function App() {
     } else {
       state.update('irrigationReduction', String(Math.round(base * 0.4)))
     }
-    announce({ message: '관수 감량 40%로 경보 상황을 만들었습니다. 경보 메일을 보냅니다.' })
     setTab('dashboard')
     window.scrollTo?.({ top: 0, behavior: 'smooth' })
   }
