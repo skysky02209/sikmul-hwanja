@@ -310,3 +310,14 @@ svg .th-target { stroke: var(--c-gold); stroke-width: 2; stroke-dasharray: 6 4; 
 .mail-form { display: grid; gap: 10px; }
 .activation { border-left-color: var(--c-warn); background: var(--c-warn-soft); }
 .activation ol { margin: 6px 0 0; padding-left: 20px; display: grid; gap: 4px; font-size: 14px; }
+
+/* 경보 상황 만들어 보기 — 바뀐 설정 칸 강조 */
+@keyframes flash-field { 0%, 60% { background: var(--c-danger-soft); box-shadow: 0 0 0 3px color-mix(in srgb, var(--c-danger) 45%, transparent); } 100% { background: transparent; box-shadow: none; } }
+.flash { animation: flash-field 2.4s ease-out; border-radius: 12px; }
+.preset-table table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 4px; }
+.preset-table th, .preset-table td { padding: 6px 8px; border-bottom: 1px solid var(--c-line); text-align: left; }
+.preset-table th { color: var(--c-sub); font-weight: 700; }
+.group { scroll-margin-top: 96px; }
+.why ol { margin: 6px 0 0; padding-left: 18px; display: grid; gap: 4px; font-size: 13px; }
+.why-alarm { border-color: var(--c-danger); background: var(--c-danger-soft); }
+.why-ok { border-color: var(--c-green); }

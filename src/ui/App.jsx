@@ -8,8 +8,14 @@ import SettingsPanel from './components/SettingsPanel.jsx'
 import ApplyDialog from './components/ApplyDialog.jsx'
 import BrakeSim from './components/BrakeSim.jsx'
 import { LEVEL_MODEL } from '../domain/brakeSim.js'
+import { evaluateConditions } from '../domain/brixModel.js'
 import { useAlertMail } from './useAlertMail.js'
 import AlertMailCard from './components/AlertMailCard.jsx'
+
+// 경보 상황: 한낮 고온·건조한 온실에서 물을 40% 줄인 상태 (감량 34% 이상이면 경보)
+const ALARM_PRESET = { baseIrrigation: 400, irrigationReduction: 160, insideTemp: 32, insideHumidity: 40, period: 'day', weather: 'clear' }
+// 정상: 기본 테스트값과 같은 환경, 감량 10%
+const NORMAL_PRESET = { baseIrrigation: 400, irrigationReduction: 40, insideTemp: 24, insideHumidity: 70, period: 'day', weather: 'clear' }
 
 const TABS = [
   { id: 'dashboard', label: '대시보드' },
@@ -50,24 +56,64 @@ export default function App() {
     prevSignal.current = { st, base: state.preview.baseIrrigation, red: state.preview.irrigationReduction }
   }, [sim.conditions.signal.state, state.preview.baseIrrigation, state.preview.irrigationReduction]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // 경보 상황 만들어 보기: 관수 감량을 40%로 바꿔 실제 경보를 띄운다 (판정이 바뀌면 위 effect가 메일 발송)
+  // 경보 상황 만들어 보기 / 정상으로 되돌리기: 위의 테스트 설정 값을 직접 바꾸고, 바뀐 칸을 잠깐 강조한다
+  // 판정이 경보로 바뀌거나 경보 중 관수 값이 바뀌면 위 effect가 메일을 보낸다
+  const applyPreset = (preset) => {
+    const changed = Object.keys(preset).filter((k) => String(state.preview[k]) !== String(preset[k]))
+    Object.entries(preset).forEach(([k, v]) => state.update(k, String(v)))
+    setTimeout(() => {
+      const first = document.getElementById(`f-${changed.find((k) => document.getElementById(`f-${k}`)) ?? 'insideTemp'}`)?.closest('.group')
+      first?.scrollIntoView?.({ behavior: 'smooth', block: 'start' })
+      changed.forEach((k) => {
+        const el = document.getElementById(`f-${k}`)?.closest('.field') ?? document.querySelector(`[name="${k}"]`)?.closest('fieldset')
+        if (!el) return
+        el.classList.remove('flash')
+        void el.offsetWidth // 애니메이션 다시 시작
+        el.classList.add('flash')
+      })
+    }, 50)
+    return changed
+  }
+
+  const [presetWhy, setPresetWhy] = useState(null)
+
   const triggerAlarm = () => {
-    const base = state.preview.baseIrrigation || 400
-    if (!state.preview.baseIrrigation) state.update('baseIrrigation', String(base))
-    if (sim.conditions.signal.state === 'alarm') {
+    const changed = applyPreset(ALARM_PRESET)
+    const c = evaluateConditions({ ...state.preview, ...ALARM_PRESET })
+    setPresetWhy({
+      tone: 'alarm',
+      lines: [
+        `관수 감량값 ${ALARM_PRESET.irrigationReduction}L → 하루 ${ALARM_PRESET.baseIrrigation}L 중 ${c.deficit}%를 줄임 (최종 ${ALARM_PRESET.baseIrrigation - ALARM_PRESET.irrigationReduction}L)`,
+        `내부 ${ALARM_PRESET.insideTemp}℃ · 습도 ${ALARM_PRESET.insideHumidity}% 한낮 맑음 → 잎에서 물이 빨리 빠져나감`,
+        `물이 모자라 초음파 소리가 시간당 ${c.signal.clicks}회 (평소 0.6회, 경보 기준 15회 이상)`,
+        `→ 🔴 경보: 즉시 관수 필요 — 경보 메일을 보냈습니다`,
+      ],
+    })
+    const waterSame = !changed.includes('baseIrrigation') && !changed.includes('irrigationReduction')
+    if (waterSame && sim.conditions.signal.state === 'alarm') {
+      // 이미 같은 경보 값이면 판정 변화가 없으므로 직접 보낸다
       mail.notify('alarm', {
         source: '경보 상황 만들어 보기',
         deficit: sim.conditions.deficit,
         clicks: sim.conditions.signal.clicks,
         brix: Math.round(sim.brix * 10) / 10,
-        insideTemp: state.preview.insideTemp,
-        insideHumidity: state.preview.insideHumidity,
+        insideTemp: ALARM_PRESET.insideTemp,
+        insideHumidity: ALARM_PRESET.insideHumidity,
       })
-    } else {
-      state.update('irrigationReduction', String(Math.round(base * 0.4)))
     }
-    setTab('dashboard')
-    window.scrollTo?.({ top: 0, behavior: 'smooth' })
+  }
+
+  const resetNormal = () => {
+    applyPreset(NORMAL_PRESET)
+    const c = evaluateConditions({ ...state.preview, ...NORMAL_PRESET })
+    setPresetWhy({
+      tone: 'ok',
+      lines: [
+        `관수 감량값 ${NORMAL_PRESET.irrigationReduction}L → ${c.deficit}%만 줄임 · 내부 ${NORMAL_PRESET.insideTemp}℃ · 습도 ${NORMAL_PRESET.insideHumidity}%`,
+        `초음파 소리 시간당 ${c.signal.clicks}회 → 🟢 정상 (메일 없음)`,
+      ],
+    })
+    announce({ message: '정상 값으로 되돌렸습니다. 다시 ‘경보 상황 만들어 보기’를 누르면 경보 메일이 갑니다.' })
   }
 
   const onBrakeSignal = (st, day) =>
@@ -147,7 +193,7 @@ export default function App() {
             onReset={() => announce(state.reset())}
             onRevert={() => announce(state.revert())}
           />
-          <AlertMailCard mail={mail} onTriggerAlarm={triggerAlarm} />
+          <AlertMailCard mail={mail} onTriggerAlarm={triggerAlarm} onResetNormal={resetNormal} presetWhy={presetWhy} />
         </div>
       </main>
 

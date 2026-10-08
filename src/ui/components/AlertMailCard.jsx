@@ -2,7 +2,7 @@ import { ALERT_KIND, buildAlertMessage, gmailComposeLink } from '../../api/alert
 
 const KIND_TEXT = { alarm: '경보', brake: '멈춤 신호', test: '테스트' }
 
-export default function AlertMailCard({ mail, onTriggerAlarm }) {
+export default function AlertMailCard({ mail, onTriggerAlarm, onResetNormal, presetWhy }) {
   const { prefs, update, emailOk, notify, log, sending, lastResult } = mail
   const sample = buildAlertMessage({ kind: ALERT_KIND.ALARM, details: { source: 'Gmail로 직접 보내기' }, appUrl: typeof window !== 'undefined' ? window.location.href : '' })
 
@@ -56,9 +56,30 @@ export default function AlertMailCard({ mail, onTriggerAlarm }) {
         <button type="button" className="btn btn-danger" disabled={!emailOk || !prefs.enabled || sending} onClick={onTriggerAlarm}>
           🔴 경보 상황 만들어 보기
         </button>
+        <button type="button" className="btn" onClick={onResetNormal}>🟢 정상으로 되돌리기</button>
         <a className="btn btn-ghost" href={gmailComposeLink(prefs.email, sample)} target="_blank" rel="noopener noreferrer">Gmail로 열기</a>
       </div>
-      <p className="hint">‘경보 상황 만들어 보기’를 누르면 관수 감량을 40%로 바꿔 실제로 경보를 띄우고, 경보 메일을 보냅니다. (테스트 설정에서 원래 값으로 되돌릴 수 있습니다)</p>
+      {presetWhy && (
+        <div className={`notice why why-${presetWhy.tone}`} role="status">
+          <strong>{presetWhy.tone === 'alarm' ? '왜 경보가 울렸나요?' : '정상으로 돌아왔습니다'}</strong>
+          <ol>
+            {presetWhy.lines.map((l) => <li key={l}>{l}</li>)}
+          </ol>
+        </div>
+      )}
+      <div className="preset-table" role="note">
+        <p className="hint"><b>‘경보 상황 만들어 보기’</b>를 누르면 위 테스트 설정 값이 아래처럼 바뀌고(바뀐 칸은 잠깐 빛납니다) 경보 메일이 갑니다. 저장은 하지 않으니 ‘되돌리기’나 ‘정상으로 되돌리기’로 원래 값으로 돌아갈 수 있습니다.</p>
+        <table>
+          <thead><tr><th>항목</th><th>🔴 경보 상황</th><th>🟢 정상</th></tr></thead>
+          <tbody>
+            <tr><td>기본 관수량</td><td>400 L/일</td><td>400 L/일</td></tr>
+            <tr><td>관수 감량값</td><td><b>160 L/일 (40%)</b></td><td>40 L/일 (10%)</td></tr>
+            <tr><td>내부 온도</td><td>32℃</td><td>24℃</td></tr>
+            <tr><td>내부 습도</td><td>40%</td><td>70%</td></tr>
+            <tr><td>낮/밤 · 날씨</td><td>낮 · 맑음</td><td>낮 · 맑음</td></tr>
+          </tbody>
+        </table>
+      </div>
 
       {lastResult?.needsActivation && (
         <div className="notice activation" role="status">
