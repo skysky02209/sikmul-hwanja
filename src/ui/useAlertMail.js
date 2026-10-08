@@ -21,6 +21,7 @@ export function useAlertMail({ onStatus } = {}) {
   const [prefs, setPrefs] = useState(load)
   const [log, setLog] = useState([])
   const [sending, setSending] = useState(false)
+  const [lastResult, setLastResult] = useState(null)
   const lastSent = useRef({})
   const send = useRef(formSubmitTransport())
 
@@ -51,11 +52,12 @@ export function useAlertMail({ onStatus } = {}) {
       setSending(false)
       const entry = { at: new Date().toISOString(), kind, ok: result.ok, message: result.message, subject: msg.subject }
       setLog((l) => [entry, ...l].slice(0, 10))
+      setLastResult(result)
       onStatus?.(result.message)
       return result
     },
     [emailOk, prefs.email, prefs.enabled, prefs.includeBrake, onStatus],
   )
 
-  return { prefs, update, emailOk, notify, log, sending }
+  return { prefs, update, emailOk, notify, log, sending, lastResult }
 }

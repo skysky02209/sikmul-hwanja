@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { isValidEmail, buildAlertMessage, shouldSend, formSubmitTransport, mailtoLink, ALERT_KIND } from '../src/api/alertMailer.js'
+import { isValidEmail, buildAlertMessage, shouldSend, formSubmitTransport, mailtoLink, gmailComposeLink, ALERT_KIND } from '../src/api/alertMailer.js'
 
 describe('경보 메일', () => {
   it('메일 주소 검증', () => {
@@ -30,12 +30,20 @@ describe('경보 메일', () => {
     const r = await formSubmitTransport(fetchImpl)({ to: 'a@b.co', subject: 's', body: 'b' })
     expect(fetchImpl.mock.calls[0][0]).toBe('https://formsubmit.co/ajax/a%40b.co')
     expect(JSON.parse(fetchImpl.mock.calls[0][1].body)._subject).toBe('s')
+    expect(JSON.parse(fetchImpl.mock.calls[0][1].body)['식물환자 알림 내용']).toBe('b')
     expect(r.ok).toBe(true)
   })
   it('활성화가 필요하면 안내한다', async () => {
     const fetchImpl = async () => ({ ok: true, status: 200, json: async () => ({ success: 'false', message: 'This form needs Activation. We\'ve sent you an email containing an \'Activate Form\' link.' }) })
     const r = await formSubmitTransport(fetchImpl)({ to: 'a@b.co', subject: 's', body: 'b' })
     expect(r.needsActivation).toBe(true)
+  })
+  it('Gmail 메일쓰기 링크', () => {
+    const u = new URL(gmailComposeLink('a@b.co', { subject: '제목', body: '본문' }))
+    expect(u.host).toBe('mail.google.com')
+    expect(u.searchParams.get('view')).toBe('cm')
+    expect(u.searchParams.get('to')).toBe('a@b.co')
+    expect(u.searchParams.get('su')).toBe('제목')
   })
   it('mailto 링크', () => expect(mailtoLink('a@b.co', { subject: '제목', body: '본문' })).toMatch(/^mailto:a%40b\.co\?subject=/))
 })

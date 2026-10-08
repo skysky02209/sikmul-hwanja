@@ -48,6 +48,27 @@ export default function App() {
     prevSignal.current = st
   }, [sim.conditions.signal.state]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  // 경보 상황 만들어 보기: 관수 감량을 40%로 바꿔 실제 경보를 띄운다 (판정이 바뀌면 위 effect가 메일 발송)
+  const triggerAlarm = () => {
+    const base = state.preview.baseIrrigation || 400
+    if (!state.preview.baseIrrigation) state.update('baseIrrigation', String(base))
+    if (sim.conditions.signal.state === 'alarm') {
+      mail.notify('alarm', {
+        source: '경보 상황 만들어 보기',
+        deficit: sim.conditions.deficit,
+        clicks: sim.conditions.signal.clicks,
+        brix: Math.round(sim.brix * 10) / 10,
+        insideTemp: state.preview.insideTemp,
+        insideHumidity: state.preview.insideHumidity,
+      })
+    } else {
+      state.update('irrigationReduction', String(Math.round(base * 0.4)))
+    }
+    announce({ message: '관수 감량 40%로 경보 상황을 만들었습니다. 경보 메일을 보냅니다.' })
+    setTab('dashboard')
+    window.scrollTo?.({ top: 0, behavior: 'smooth' })
+  }
+
   const onBrakeSignal = (st, day) =>
     mail.notify(st, {
       source: `감량 관리 · ${day.day}일차`,
@@ -125,7 +146,7 @@ export default function App() {
             onReset={() => announce(state.reset())}
             onRevert={() => announce(state.revert())}
           />
-          <AlertMailCard mail={mail} />
+          <AlertMailCard mail={mail} onTriggerAlarm={triggerAlarm} />
         </div>
       </main>
 

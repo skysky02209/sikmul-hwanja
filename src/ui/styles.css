@@ -305,3 +305,7 @@ svg .th-target { stroke: var(--c-gold); stroke-width: 2; stroke-dasharray: 6 4; 
 .mail-title { font-size: 16px; color: var(--c-text); }
 .alert-mail input[type='email'] { width: 100%; min-height: 44px; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--c-line); background: var(--c-bg); font-size: 16px; }
 .alert-mail a.btn { display: inline-flex; align-items: center; text-decoration: none; color: inherit; }
+.btn-danger { background: var(--c-danger); border-color: var(--c-danger); color: #fff; }
+.mail-form { display: grid; gap: 10px; }
+.activation { border-left-color: var(--c-warn); background: var(--c-warn-soft); }
+.activation ol { margin: 6px 0 0; padding-left: 20px; display: grid; gap: 4px; font-size: 14px; }

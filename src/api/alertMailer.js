@@ -25,6 +25,8 @@ export function buildAlertMessage({ kind, details = {}, appUrl, at = new Date() 
   const time = at.toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' })
   const subject = `[식물환자] ${KIND_LABEL[kind] ?? kind}`
   const lines = [
+    '식물환자 앱에서 보낸 알림입니다.',
+    '',
     `${KIND_LABEL[kind] ?? kind}`,
     `시각: ${time}`,
     details.source && `발생 위치: ${details.source}`,
@@ -57,7 +59,7 @@ export function formSubmitTransport(fetchImpl = globalThis.fetch) {
     const res = await fetchImpl(`https://formsubmit.co/ajax/${encodeURIComponent(to.trim())}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-      body: JSON.stringify({ _subject: subject, _template: 'box', _captcha: 'false', 알림: body }),
+      body: JSON.stringify({ _subject: subject, _template: 'basic', _captcha: 'false', '식물환자 알림 내용': body }),
     })
     let data = {}
     try {
@@ -82,4 +84,10 @@ export function formSubmitTransport(fetchImpl = globalThis.fetch) {
 /** 메일 앱으로 직접 보내는 링크 (외부 서비스 없이) */
 export function mailtoLink(to, { subject, body }) {
   return `mailto:${encodeURIComponent(to ?? '')}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
+}
+
+/** Gmail 웹 메일쓰기 화면으로 바로 여는 링크 */
+export function gmailComposeLink(to, { subject, body }) {
+  const q = new URLSearchParams({ view: 'cm', fs: '1', to: to ?? '', su: subject, body })
+  return `https://mail.google.com/mail/?${q.toString()}`
 }
