@@ -37,8 +37,8 @@ export default function Dashboard({ snapshot, settings, onApply, sim }) {
       {/* 당도 — 핵심 지표 */}
       <article className="card brix-card" aria-labelledby="brix-label">
         <div className="card-head">
-          <h3 id="brix-label">당도 (Brix){simActive && <small className="muted"> · 시뮬레이션 {sim.running ? '진행 중' : '일시정지'}</small>}</h3>
-          {simActive ? <span className="chip chip-sim">시뮬레이션값</span> : <SourceTag source={quality.brix.source} />}
+          <h3 id="brix-label">당도 (Brix){simActive && <small className="muted"> · 예측 {sim.running ? '진행 중' : '일시정지'}</small>}</h3>
+          {simActive ? <span className="chip chip-sim">예측값</span> : <SourceTag source={quality.brix.source} />}
         </div>
         <p className="brix-value" aria-live="polite">
           <strong>{brix.toFixed(1)}</strong>
@@ -58,7 +58,7 @@ export default function Dashboard({ snapshot, settings, onApply, sim }) {
         <p className="hint">
           참고 구간(토마토 예시): 6 미만 낮음 · 6~8 보통 · 8 이상 고당도.{' '}
           {simActive
-            ? `테스트값 ${sim.startBrix.toFixed(1)}°Bx에서 시작한 시뮬레이션 결과입니다. 실제 측정값이 아닙니다.`
+            ? `테스트값 ${sim.startBrix.toFixed(1)}°Bx에서 시작한 예측 결과입니다. 실제 측정값이 아닙니다.`
             : quality.brix.source === SOURCE.TEST && '당도 센서가 연결되지 않아 입력한 테스트값을 보여 줍니다.'}
         </p>
       </article>

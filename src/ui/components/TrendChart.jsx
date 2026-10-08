@@ -14,9 +14,9 @@ export default function TrendChart({ title, unit, series, nowHour, min, max }) {
     <figure className="chart">
       <figcaption>
         <span className="chart-title">{title}</span>
-        <span className="chip chip-sim">시뮬레이션</span>
+        <span className="chip chip-sim">예측</span>
       </figcaption>
-      <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`${title} 24시간 시뮬레이션 추이: ${summary}`}>
+      <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`${title} 24시간 예측 추이: ${summary}`}>
         {ticks.map((t) => (
           <g key={t}>
             <line x1={P.l} x2={W - P.r} y1={y(t)} y2={y(t)} className="gridline" />

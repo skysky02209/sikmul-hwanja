@@ -11,7 +11,7 @@ import { LEVEL_MODEL } from '../domain/brakeSim.js'
 
 const TABS = [
   { id: 'dashboard', label: '대시보드' },
-  { id: 'brake', label: '감량 시뮬레이션' },
+  { id: 'brake', label: '감량 관리' },
   { id: 'settings', label: '테스트 설정' },
 ]
 
@@ -58,7 +58,7 @@ export default function App() {
       </header>
 
       <div className="banner" role="note">
-        <strong>시뮬레이션 데이터</strong> · 실제 센서와 관수 장치가 연결되어 있지 않습니다. 화면의 모든 값은 테스트 설정에서 입력한 값입니다.
+        <strong>테스트 모드</strong> · 아직 실제 센서와 관수 장치가 연결되어 있지 않습니다. 화면의 값은 테스트 설정에서 입력한 값과 그 값으로 계산한 예측입니다.
         <span className="banner-src"> 데이터 출처: {provider.label}</span>
       </div>
 
@@ -104,7 +104,7 @@ export default function App() {
       )}
 
       <footer className="foot">
-        식물환자 · 아이디어 공모전 시연용 시뮬레이션 앱 · 실제 측정·제어 기능 없음
+        식물환자 · 재배 환경·관수 관리 앱 (시제품) · 센서·관수 장치 연동 준비 중
       </footer>
 
       <ApplyDialog open={dialog.open} result={dialog.result} log={log} onClose={() => setDialog((d) => ({ ...d, open: false }))} />

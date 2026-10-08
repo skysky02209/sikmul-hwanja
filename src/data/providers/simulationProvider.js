@@ -8,7 +8,7 @@ import { computeFinalIrrigation, reductionRate, isClamped } from '../../domain/i
  */
 export const simulationProvider = {
   id: 'simulation',
-  label: '테스트 데이터 (시뮬레이션)',
+  label: '테스트 데이터',
   source: SOURCE.TEST,
   isConnected: () => true,
 

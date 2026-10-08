@@ -40,8 +40,8 @@ export default function GrowthSimCard({ sim, baseBrixInput }) {
   return (
     <article className="card sim-card" aria-labelledby="sim-title">
       <div className="card-head">
-        <h3 id="sim-title">생육 시뮬레이션 · 당도 변화</h3>
-        <span className="chip chip-sim">시뮬레이션</span>
+        <h3 id="sim-title">생육 예측 · 당도 변화</h3>
+        <span className="chip chip-sim">예측</span>
       </div>
       <p className="hint">
         테스트 설정의 환경 조건으로 시간을 흘려 당도가 어떻게 변하는지 계산합니다. 조건이 좋으면 당도가 오르고, 나쁘면 떨어집니다. 실행 중에도 설정을 바꾸면 바로 반영됩니다.
@@ -49,7 +49,7 @@ export default function GrowthSimCard({ sim, baseBrixInput }) {
 
       <div className="sim-controls">
         <button type="button" className="btn btn-primary" onClick={sim.toggle} aria-pressed={running}>
-          {running ? '⏸ 일시정지' : hours > 0 ? '▶ 이어서 실행' : '▶ 시뮬레이션 시작'}
+          {running ? '⏸ 일시정지' : hours > 0 ? '▶ 이어서 실행' : '▶ 예측 시작'}
         </button>
         <button type="button" className="btn" onClick={sim.reset} disabled={hours === 0}>
           ↺ 처음으로

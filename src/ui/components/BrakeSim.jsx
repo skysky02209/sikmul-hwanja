@@ -27,7 +27,7 @@ function ClickChart({ history }) {
     <figure className="chart">
       <figcaption>
         <span className="chart-title">시간당 초음파 클릭 수 (감량 vs 대조)</span>
-        <span className="chip chip-sim">시뮬레이션</span>
+        <span className="chip chip-sim">테스트 데이터</span>
       </figcaption>
       <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={label}>
         {[0, 15, 30].map((t) => (
@@ -74,16 +74,16 @@ export default function BrakeSim({ baseIrrigation, onApplyToSettings }) {
 
   return (
     <section aria-labelledby="brake-title" className="panel">
-      <h2 id="brake-title" className="panel-title">감량 시뮬레이션</h2>
+      <h2 id="brake-title" className="panel-title">감량 관리</h2>
       <p className="hint">
-        발표의 작동 원리를 그대로 옮긴 가상 실험입니다. 하루에 한 계단씩 관수를 줄이고, 물을 충분히 준 대조 구역과 식물의 초음파 클릭 수를 비교합니다.
+        식물환자의 작동 원리대로 하루에 한 계단씩 관수를 줄이고, 물을 충분히 준 대조 구역과 식물의 초음파 클릭 수를 비교합니다.
         <strong> 모든 수치는 가정값이며 실제 측정이 아닙니다.</strong>
       </p>
 
       <article className="card" aria-labelledby="today-title">
         <div className="card-head">
           <h3 id="today-title">{history.length ? `${today.day}일차` : '시작 전'}</h3>
-          <span className="chip chip-sim">시뮬레이션</span>
+          <span className="chip chip-sim">테스트 데이터</span>
         </div>
         <ol className="steps" aria-label="감량 단계">
           {LEVELS.map((lv) => (
@@ -159,7 +159,7 @@ export default function BrakeSim({ baseIrrigation, onApplyToSettings }) {
         ) : (
           <p className="hint">선을 넘으면(70% 이하) 당도는 더 오르지만 수량이 크게 줄어 소득이 떨어집니다.</p>
         )}
-        <p className="hint">근거: 발표자료 ‘멈추는 지점 = 소득’ 시나리오 (기준 2,437만 원 · 적정선 3,042만 원 · 선을 넘음 2,387만 원). 수량·단가·당도는 가정값입니다.</p>
+        <p className="hint">근거: 식물환자 수익 시나리오 (기준 2,437만 원 · 적정선 3,042만 원 · 선을 넘음 2,387만 원). 수량·단가·당도는 가정값입니다.</p>
         <button
           type="button"
           className="btn btn-block"
