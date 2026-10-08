@@ -167,3 +167,8 @@ describe('원하는 당도 도달 예측', () => {
   })
   it('이미 넘었으면 0시간', () => expect(hoursToReach({ brix: 9, goal: 8, settings: good }).hours).toBe(0))
 })
+
+describe('과실 상태 — 떨어지는 중', () => {
+  it('목표 당도가 현재보다 낮으면 떨어지는 중', () => expect(fruitLook(8, 48, 6).label).toContain('떨어지는 중'))
+  it('오르는 중이면 떨어지는 중이 아님', () => expect(fruitLook(7, 48, 8).label).not.toContain('떨어지는'))
+})

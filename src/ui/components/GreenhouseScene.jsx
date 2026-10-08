@@ -11,15 +11,16 @@ const SKY = {
  * - 예측을 돌려 당도가 오르면 점점 통통하고 진한 빨강이 된다 (약 3일에 걸쳐 차오름)
  * - 조건이 나빠 당도가 떨어지면 다시 홀쭉해진다
  */
-export function fruitLook(brix, hours = 0) {
+export function fruitLook(brix, hours = 0, target = brix) {
+  const falling = hours > 0 && target < brix - 0.05
   const level = Math.min(1, Math.max(0, (brix - 5.5) / 3)) // 5.5°Bx 이하 → 0, 8.5°Bx 이상 → 1
   const p = hours > 0 ? level * Math.min(1, hours / 72) : 0
   const sx = 0.62 + 0.88 * p // 홀쭉 → 통통
   const sy = 0.9 + 0.5 * p
   const color = p >= 0.66 ? '#C62828' : p >= 0.33 ? '#E53935' : p > 0.1 ? '#F08A5D' : '#9CCC65'
-  const label = hours === 0 ? '홀쭉 · 예측 전' : level < 0.33 ? '홀쭉 · 당도 낮음' : p >= 0.66 ? '통통 · 고당도' : '차오르는 중'
-  const tone = hours > 0 && level < 0.33 ? 'warn' : p >= 0.66 ? 'good' : 'neutral'
-  return { sx, sy, color, label, tone, p }
+  const label = hours === 0 ? '홀쭉 · 예측 전' : falling ? '↘ 당도 떨어지는 중' : level < 0.33 ? '홀쭉 · 당도 낮음' : p >= 0.66 ? '통통 · 고당도' : '차오르는 중'
+  const tone = falling || (hours > 0 && level < 0.33) ? 'warn' : p >= 0.66 ? 'good' : 'neutral'
+  return { sx, sy, color, label, tone, p, falling }
 }
 
 /** 토마토 모양 (cx, cy 중심, 지름 약 22, 위가 살짝 들어간 납작한 원) */
@@ -35,7 +36,7 @@ const FRUIT_TONE = { good: '#17704A', neutral: '#16302B', warn: '#B26A00', bad: 
 
 /** 온실 단면 그림 — 외부/내부 값과 낮·밤, 날씨, 관수, 과실 상태를 한 장에 보여 준다 */
 export default function GreenhouseScene({ s, finalIrrigation, fruitBrix = s.brix, simHours = 0, signal = 'continue', sim = null }) {
-  const fruit = fruitLook(fruitBrix, simHours)
+  const fruit = fruitLook(fruitBrix, simHours, sim ? sim.conditions.target : fruitBrix)
   const droop = signal === 'alarm' ? 28 : signal === 'brake' ? 12 : 0
   const leaf = signal === 'alarm' ? '#9CAF4A' : signal === 'brake' ? '#6FA544' : '#43A047'
   const anim = { transition: 'transform 0.6s ease, fill 0.6s ease', transformBox: 'fill-box', transformOrigin: 'center' }
