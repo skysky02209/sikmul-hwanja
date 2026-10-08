@@ -5,12 +5,33 @@ const SKY = {
   night: { clear: ['#0F1E36', '#27406B'], cloudy: ['#1D2733', '#3B4652'], rain: ['#151D26', '#2F3A46'], snow: ['#26313D', '#55616E'] },
 }
 
-/** 온실 단면 그림 — 외부/내부 값과 낮·밤, 날씨, 관수를 한 장에 보여 준다 */
-export default function GreenhouseScene({ s, finalIrrigation }) {
+/**
+ * 과실 모양 — 테스트 설정으로 계산한 당도와 식물환자 판정으로 정한다 (실제 측정 아님)
+ * - 당도가 높을수록 과실이 커지고 색이 진해진다
+ * - 물이 모자라(멈춤 신호·경보) 스트레스를 받으면 과실이 홀쭉해지고 잎이 처진다
+ */
+export function fruitLook(brix, signal) {
+  const k = Math.min(1, Math.max(0, (brix - 4) / 6)) // 4°Bx → 0, 10°Bx 이상 → 1
+  const size = 0.7 + 0.9 * k
+  const thin = signal === 'alarm' ? 0.62 : signal === 'brake' ? 0.82 : 1
+  const color = signal === 'alarm' ? '#C9785E' : k >= 0.66 ? '#B71C1C' : k >= 0.33 ? '#E53935' : '#EF7B5A'
+  const label =
+    signal === 'alarm' ? '홀쭉 · 물 부족' : signal === 'brake' ? '살짝 홀쭉' : k >= 0.66 ? '통통 · 고당도' : k >= 0.33 ? '보통 · 보통 당도' : '작음 · 저당도'
+  const tone = signal === 'alarm' ? 'bad' : signal === 'brake' ? 'warn' : k >= 0.66 ? 'good' : 'neutral'
+  return { sx: size * thin, sy: size * (signal === 'alarm' ? 1.05 : 1), color, label, tone, droop: signal === 'alarm' ? 28 : signal === 'brake' ? 12 : 0, wrinkle: signal === 'alarm' }
+}
+
+const FRUIT_TONE = { good: '#17704A', neutral: '#16302B', warn: '#B26A00', bad: '#B3261E' }
+
+/** 온실 단면 그림 — 외부/내부 값과 낮·밤, 날씨, 관수, 과실 상태를 한 장에 보여 준다 */
+export default function GreenhouseScene({ s, finalIrrigation, fruitBrix = s.brix, signal = 'continue' }) {
+  const fruit = fruitLook(fruitBrix, signal)
+  const leaf = signal === 'alarm' ? '#9CAF4A' : signal === 'brake' ? '#6FA544' : '#43A047'
+  const anim = { transition: 'transform 0.6s ease, fill 0.6s ease', transformBox: 'fill-box', transformOrigin: 'center' }
   const [top, bottom] = SKY[s.period][s.weather]
   const night = s.period === 'night'
   const txt = night ? '#F1F5F8' : '#16302B'
-  const desc = `온실 그림: ${labelOf(PERIODS, s.period)}, ${labelOf(WEATHERS, s.weather)}. 외부 ${s.outsideTemp}°C·${s.outsideHumidity}%, 내부 ${s.insideTemp}°C·${s.insideHumidity}%, 최종 관수량 ${finalIrrigation}L/일.`
+  const desc = `온실 그림: ${labelOf(PERIODS, s.period)}, ${labelOf(WEATHERS, s.weather)}. 외부 ${s.outsideTemp}°C·${s.outsideHumidity}%, 내부 ${s.insideTemp}°C·${s.insideHumidity}%, 최종 관수량 ${finalIrrigation}L/일. 과실 상태: ${fruit.label}, 당도 ${fruitBrix.toFixed(1)}°Bx.`
   return (
     <figure className="scene">
       <svg viewBox="0 0 640 300" role="img" aria-label={desc} preserveAspectRatio="xMidYMid meet">
@@ -62,9 +83,15 @@ export default function GreenhouseScene({ s, finalIrrigation }) {
           {[195, 265, 375, 445].map((x) => (
             <g key={x}>
               <line x1={x} y1="258" x2={x} y2="205" stroke="#2E7D32" strokeWidth="4" />
-              <ellipse cx={x - 11} cy="222" rx="12" ry="6" fill="#43A047" />
-              <ellipse cx={x + 11} cy="212" rx="12" ry="6" fill="#43A047" />
-              <circle cx={x + 4} cy="236" r="7" fill="#E53935" />
+              <ellipse cx={x - 11} cy="222" rx="12" ry="6" fill={leaf} style={{ ...anim, transformOrigin: 'right center', transform: `rotate(${-fruit.droop}deg)` }} />
+              <ellipse cx={x + 11} cy="212" rx="12" ry="6" fill={leaf} style={{ ...anim, transformOrigin: 'left center', transform: `rotate(${fruit.droop}deg)` }} />
+              <line x1={x + 4} y1="214" x2={x + 4} y2="226" stroke="#2E7D32" strokeWidth="2" />
+              <g style={{ ...anim, transform: `scale(${fruit.sx}, ${fruit.sy})` }}>
+                <ellipse cx={x + 4} cy="236" rx="11" ry="11" fill={fruit.color} style={anim} />
+                <ellipse cx={x + 1} cy="232" rx="2.4" ry="1.6" fill="#FFFFFF" opacity={fruit.wrinkle ? 0.15 : 0.55} />
+                {fruit.wrinkle && <path d={`M${x} 231 q4 4 0 9 M${x + 8} 231 q-4 4 0 9`} stroke="#7A3B2B" strokeWidth="1" fill="none" opacity="0.7" />}
+                <path d={`M${x} 228 l4 -2 l4 2`} stroke="#2E7D32" strokeWidth="2" fill="none" strokeLinecap="round" />
+              </g>
             </g>
           ))}
           {/* 관수 라인 */}
@@ -87,8 +114,14 @@ export default function GreenhouseScene({ s, finalIrrigation }) {
         <g fill={night ? '#F1F5F8' : '#16302B'}>
           <text x="625" y="290" fontSize="12" textAnchor="end">관수 {finalIrrigation} L/일</text>
         </g>
+        {/* 라벨: 과실 상태 */}
+        <g>
+          <rect x="14" y="200" width="132" height="52" rx="10" fill="rgba(255,255,255,0.9)" stroke={FRUIT_TONE[fruit.tone]} strokeWidth="2" />
+          <text x="26" y="220" fontSize="12" fontWeight="700" fill="#16302B">🍅 과실 상태</text>
+          <text x="26" y="242" fontSize="13" fontWeight="800" fill={FRUIT_TONE[fruit.tone]}>{fruit.label}</text>
+        </g>
       </svg>
-      <figcaption className="scene-cap">테스트값으로 그린 화면입니다 · 실제 온실 영상이 아닙니다</figcaption>
+      <figcaption className="scene-cap">테스트값으로 그린 화면입니다 · 실제 온실 영상이 아닙니다 · 과실 크기는 당도(높을수록 크게), 모양은 물 부족 정도(경보면 홀쭉)를 나타냅니다</figcaption>
     </figure>
   )
 }

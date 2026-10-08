@@ -139,3 +139,13 @@ describe('관수량 0', () => {
   it('기본 관수량 0이면 경보', () => expect(evaluateConditions({ ...DEFAULT_SETTINGS, baseIrrigation: 0, irrigationReduction: 0 }).signal.state).toBe('alarm'))
   it('최종 관수량 0(감량=기본)이면 경보', () => expect(evaluateConditions({ ...DEFAULT_SETTINGS, baseIrrigation: 400, irrigationReduction: 400 }).signal.state).toBe('alarm'))
 })
+
+import { fruitLook } from '../src/ui/components/GreenhouseScene.jsx'
+describe('과실 모양', () => {
+  it('당도가 높을수록 크다', () => expect(fruitLook(10, 'continue').sx).toBeGreaterThan(fruitLook(5, 'continue').sx))
+  it('경보면 홀쭉해진다', () => {
+    const a = fruitLook(8, 'alarm')
+    expect(a.sx).toBeLessThan(a.sy)
+    expect(a.label).toContain('홀쭉')
+  })
+})

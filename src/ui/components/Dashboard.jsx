@@ -65,7 +65,12 @@ export default function Dashboard({ snapshot, settings, onApply, sim }) {
 
       <GrowthSimCard sim={sim} baseBrixInput={quality.brix.value} />
 
-      <GreenhouseScene s={sceneSettings} finalIrrigation={irrigation.final.value} />
+      <GreenhouseScene
+        s={sceneSettings}
+        finalIrrigation={irrigation.final.value}
+        fruitBrix={simActive ? sim.brix : sim.conditions.target}
+        signal={sim.conditions.signal.state}
+      />
 
       <div className="grid">
         <article className="card">
