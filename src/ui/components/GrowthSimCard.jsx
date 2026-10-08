@@ -114,11 +114,9 @@ export default function GrowthSimCard({ sim, baseBrixInput }) {
 
       <p className={`goal-eta ${sim.eta.reached ? 'ok' : 'no'}`} role="status">
         🎯 원하는 당도 <b>{sim.goalBrix.toFixed(1)}°Bx</b>:{' '}
-        {sim.reachedAt !== null
-          ? <>✅ <b>{Math.floor(sim.reachedAt / 24) + 1}일째</b>에 도달했습니다 (시작 후 {formatDuration(sim.reachedAt)})</>
-          : sim.eta.reached
+        {sim.eta.reached
             ? sim.eta.hours === 0
-              ? '이미 도달한 당도입니다'
+              ? '✅ 지금 원하는 당도 이상입니다'
               : <>지금 조건이면 <b>약 {formatDuration(sim.eta.hours)}</b> 뒤{hours > 0 ? ` (${Math.floor((hours + sim.eta.hours) / 24) + 1}일째)` : ''}에 도달할 것으로 예측됩니다</>
             : <>⚠ 지금 조건으로는 30일 안에 도달하기 어렵습니다 (최대 약 {sim.eta.best.toFixed(1)}°Bx) — 관수 감량·온도·습도를 조정해 보세요</>}
       </p>

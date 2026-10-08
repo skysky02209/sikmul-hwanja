@@ -139,14 +139,12 @@ export default function GreenhouseScene({ s, finalIrrigation, fruitBrix = s.brix
           {sim && (
             <>
               <text x="22" y="232" fontSize="11" fontWeight="700" fill="#16302B">🎯 목표 {sim.goalBrix.toFixed(1)}°Bx</text>
-              <text x="22" y="250" fontSize="12" fontWeight="800" fill={sim.reachedAt !== null || sim.eta.reached ? '#17704A' : '#B3261E'}>
-                {sim.reachedAt !== null
-                  ? `✅ ${Math.floor(sim.reachedAt / 24) + 1}일째 도달`
-                  : sim.eta.reached
-                    ? sim.eta.hours === 0
-                      ? '✅ 이미 도달'
-                      : `약 ${etaText(sim.eta.hours)} 뒤 도달`
-                    : `⚠ 도달 어려움 (최대 ${sim.eta.best.toFixed(1)})`}
+              <text x="22" y="250" fontSize="12" fontWeight="800" fill={sim.eta.reached ? '#17704A' : '#B3261E'}>
+                {sim.eta.reached
+                  ? sim.eta.hours === 0
+                    ? '✅ 목표 이상'
+                    : `약 ${etaText(sim.eta.hours)} 뒤 도달`
+                  : `⚠ 도달 어려움 (최대 ${sim.eta.best.toFixed(1)})`}
               </text>
             </>
           )}

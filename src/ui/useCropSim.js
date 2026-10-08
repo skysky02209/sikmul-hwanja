@@ -83,13 +83,11 @@ export function useCropSim(settings) {
     () => hoursToReach({ brix, goal: goalBrix, settings, autoCycle, startHour, elapsed: hours }),
     [brix, goalBrix, settings, autoCycle, startHour, hours],
   )
-  const reachedAt = history.find((p) => p.h > 0 && p.b >= goalBrix - 0.05)?.h ?? null
 
   return {
     goalBrix,
     setGoalBrix,
     eta,
-    reachedAt,
     day: hours > 0 ? Math.floor(hours / 24) + 1 : 0,
     running,
     toggle: () => setRunning((r) => !r),
