@@ -126,9 +126,10 @@ export default function GreenhouseScene({ s, finalIrrigation, fruitBrix = s.brix
         </g>
         {/* 라벨: 과실 상태 */}
         <g>
-          <rect x="14" y="200" width="132" height="52" rx="10" fill="rgba(255,255,255,0.9)" stroke={FRUIT_TONE[fruit.tone]} strokeWidth="2" />
-          <text x="26" y="220" fontSize="12" fontWeight="700" fill="#16302B">🍓 과실 상태</text>
-          <text x="26" y="242" fontSize="13" fontWeight="800" fill={FRUIT_TONE[fruit.tone]}>{fruit.label}</text>
+          <rect x="14" y="178" width="132" height="76" rx="10" fill="rgba(255,255,255,0.92)" stroke={FRUIT_TONE[fruit.tone]} strokeWidth="2" />
+          <text x="26" y="197" fontSize="12" fontWeight="700" fill="#16302B">🍓 과실 상태</text>
+          <text x="26" y="221" fontSize="18" fontWeight="800" fill={FRUIT_TONE[fruit.tone]}>{fruitBrix.toFixed(1)}°Bx</text>
+          <text x="26" y="243" fontSize="13" fontWeight="700" fill={FRUIT_TONE[fruit.tone]}>{fruit.label}</text>
         </g>
       </svg>
       <figcaption className="scene-cap">테스트값으로 그린 화면입니다 · 실제 온실 영상이 아닙니다 · 딸기는 처음엔 홀쭉하고, 위 ‘생육 예측’을 돌려 당도가 오르면 통통해집니다 · 잎이 처지면 물 부족입니다</figcaption>
