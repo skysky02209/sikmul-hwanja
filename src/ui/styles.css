@@ -321,3 +321,7 @@ svg .th-target { stroke: var(--c-gold); stroke-width: 2; stroke-dasharray: 6 4; 
 .why ol { margin: 6px 0 0; padding-left: 18px; display: grid; gap: 4px; font-size: 13px; }
 .why-alarm { border-color: var(--c-danger); background: var(--c-danger-soft); }
 .why-ok { border-color: var(--c-green); }
+.inline.goal { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; }
+.inline.goal input { width: 72px; min-height: 40px; padding: 6px 8px; border-radius: 10px; border: 1px solid var(--c-line); background: var(--c-bg); font-size: 16px; }
+.goal-eta { margin: 8px 0 0; padding: 8px 12px; border-radius: 10px; font-size: 14px; background: var(--c-surface-2); border-left: 4px solid var(--c-green); }
+.goal-eta.no { border-left-color: var(--c-danger); }

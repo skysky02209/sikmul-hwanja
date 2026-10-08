@@ -153,3 +153,17 @@ describe('과실 모양', () => {
     expect(fruitLook(10, 72).label).toContain('통통')
   })
 })
+
+import { hoursToReach } from '../src/domain/brixModel.js'
+describe('원하는 당도 도달 예측', () => {
+  const good = { insideTemp: 24, insideHumidity: 70, baseIrrigation: 400, irrigationReduction: 80, period: 'day', weather: 'clear' }
+  it('목표보다 높은 조건이면 도달 시간이 나온다', () => {
+    const r = hoursToReach({ brix: 6, goal: 7.5, settings: good })
+    expect(r.reached).toBe(true)
+    expect(r.hours).toBeGreaterThan(0)
+  })
+  it('조건의 상한보다 높은 목표는 도달 어려움', () => {
+    expect(hoursToReach({ brix: 6, goal: 11, settings: good }).reached).toBe(false)
+  })
+  it('이미 넘었으면 0시간', () => expect(hoursToReach({ brix: 9, goal: 8, settings: good }).hours).toBe(0))
+})

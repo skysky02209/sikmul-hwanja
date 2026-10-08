@@ -1,4 +1,4 @@
-import { SPEEDS, formatElapsed } from '../useCropSim.js'
+import { SPEEDS, formatElapsed, formatDuration } from '../useCropSim.js'
 import { BASE_BRIX } from '../../domain/brixModel.js'
 
 const TONE_ICON = { good: '▲', bad: '▼', warn: '▽', neutral: '•' }
@@ -68,6 +68,22 @@ export default function GrowthSimCard({ sim, baseBrixInput }) {
             ))}
           </select>
         </label>
+        <label className="inline goal">
+          <span>🎯 원하는 당도</span>
+          <input
+            type="number"
+            min="4"
+            max="13"
+            step="0.5"
+            value={sim.goalBrix}
+            aria-label="원하는 당도 (°Bx)"
+            onChange={(e) => {
+              const v = Number(e.target.value)
+              if (Number.isFinite(v) && v >= 4 && v <= 13) sim.setGoalBrix(v)
+            }}
+          />
+          <span>°Bx</span>
+        </label>
         <label className="inline check">
           <input type="checkbox" checked={sim.autoCycle} onChange={(e) => sim.setAutoCycle(e.target.checked)} />
           <span>낮/밤 자동 순환</span>
@@ -76,9 +92,9 @@ export default function GrowthSimCard({ sim, baseBrixInput }) {
 
       <div className="sim-stats" aria-live="polite">
         <div>
-          <span className="lbl">경과</span>
-          <strong>{formatElapsed(hours)}</strong>
-          <span className="sub">{sim.periodNow === 'day' ? '☀️ 낮' : '🌙 밤'}</span>
+          <span className="lbl">진행</span>
+          <strong>{hours > 0 ? `${sim.day}일째` : '시작 전'}</strong>
+          <span className="sub">{formatElapsed(hours)} 경과 · {sim.periodNow === 'day' ? '☀️ 낮' : '🌙 밤'}</span>
         </div>
         <div>
           <span className="lbl">현재 당도</span>
@@ -95,6 +111,17 @@ export default function GrowthSimCard({ sim, baseBrixInput }) {
           <span className="sub">{trend === 'up' ? '오르는 중' : trend === 'down' ? '떨어지는 중' : '유지'}</span>
         </div>
       </div>
+
+      <p className={`goal-eta ${sim.eta.reached ? 'ok' : 'no'}`} role="status">
+        🎯 원하는 당도 <b>{sim.goalBrix.toFixed(1)}°Bx</b>:{' '}
+        {sim.reachedAt !== null
+          ? <>✅ <b>{Math.floor(sim.reachedAt / 24) + 1}일째</b>에 도달했습니다 (시작 후 {formatDuration(sim.reachedAt)})</>
+          : sim.eta.reached
+            ? sim.eta.hours === 0
+              ? '이미 도달한 당도입니다'
+              : <>지금 조건이면 <b>약 {formatDuration(sim.eta.hours)}</b> 뒤{hours > 0 ? ` (${Math.floor((hours + sim.eta.hours) / 24) + 1}일째)` : ''}에 도달할 것으로 예측됩니다</>
+            : <>⚠ 지금 조건으로는 30일 안에 도달하기 어렵습니다 (최대 약 {sim.eta.best.toFixed(1)}°Bx) — 관수 감량·온도·습도를 조정해 보세요</>}
+      </p>
 
       <div className="chart-inline">
         <BrixLine history={history} maxHours={sim.maxHours} target={conditions.target} />

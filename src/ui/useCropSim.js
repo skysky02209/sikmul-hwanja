@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { evaluateConditions, stepBrix, periodAtHour } from '../domain/brixModel.js'
+import { evaluateConditions, stepBrix, periodAtHour, hoursToReach } from '../domain/brixModel.js'
 
 export const SPEEDS = [
   { value: 1, label: '1시간/초' },
@@ -19,6 +19,7 @@ export function useCropSim(settings) {
   const [hours, setHours] = useState(0)
   const [brix, setBrix] = useState(settings.brix)
   const [history, setHistory] = useState([{ h: 0, b: settings.brix }])
+  const [goalBrix, setGoalBrix] = useState(7.5)
   const startBrix = useRef(settings.brix)
   const startHour = settings.period === 'night' ? 22 : 10
 
@@ -77,7 +78,19 @@ export function useCropSim(settings) {
     setHistory([{ h: 0, b: settings.brix }])
   }, [settings.brix])
 
+  // 원하는 당도까지 남은 시간 (현재 조건 유지 가정)
+  const eta = useMemo(
+    () => hoursToReach({ brix, goal: goalBrix, settings, autoCycle, startHour, elapsed: hours }),
+    [brix, goalBrix, settings, autoCycle, startHour, hours],
+  )
+  const reachedAt = history.find((p) => p.h > 0 && p.b >= goalBrix - 0.05)?.h ?? null
+
   return {
+    goalBrix,
+    setGoalBrix,
+    eta,
+    reachedAt,
+    day: hours > 0 ? Math.floor(hours / 24) + 1 : 0,
     running,
     toggle: () => setRunning((r) => !r),
     reset,
@@ -100,4 +113,12 @@ export function formatElapsed(h) {
   const d = Math.floor(h / 24)
   const r = h % 24
   return d ? `${d}일 ${r}시간` : `${r}시간`
+}
+
+/** 걸리는 시간 표시: 24시간 미만은 시간, 이상은 일 */
+export function formatDuration(h) {
+  if (h < 24) return `${h}시간`
+  const d = Math.floor(h / 24)
+  const r = h % 24
+  return r ? `${d}일 ${r}시간` : `${d}일`
 }

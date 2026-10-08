@@ -170,3 +170,22 @@ export function periodAtHour(startHour, elapsed) {
   const h = (startHour + elapsed) % 24
   return h >= 6 && h < 18 ? 'day' : 'night'
 }
+
+/**
+ * 원하는 당도(goal)에 도달하기까지 걸리는 시간(시간 단위) — 현재 조건을 그대로 유지한다고 가정한 예측
+ * @returns {{ reached: boolean, hours: number|null, best: number }}
+ */
+export function hoursToReach({ brix, goal, settings, autoCycle = false, startHour = 10, elapsed = 0, maxHours = 24 * 30 }) {
+  const TOL = 0.05
+  if (brix >= goal - TOL) return { reached: true, hours: 0, best: brix }
+  let b = brix
+  let best = b
+  const fixed = autoCycle ? null : evaluateConditions(settings).target
+  for (let h = 1; h <= maxHours; h += 1) {
+    const target = fixed ?? evaluateConditions({ ...settings, period: periodAtHour(startHour, elapsed + h) }).target
+    b = stepBrix(b, target, 1)
+    best = Math.max(best, b)
+    if (b >= goal - TOL) return { reached: true, hours: h, best }
+  }
+  return { reached: false, hours: null, best: Math.round(best * 10) / 10 }
+}

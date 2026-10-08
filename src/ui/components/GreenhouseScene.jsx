@@ -28,10 +28,14 @@ function strawberryPath(cx, cy) {
 }
 const SEEDS = [[-5, -3], [0, -4], [5, -3], [-3, 2], [3, 2], [-5, 6], [0, 6], [5, 6], [-2, 10], [2, 10]]
 
+function etaText(h) {
+  return h < 24 ? `${h}시간` : `${Math.round((h / 24) * 10) / 10}일`
+}
+
 const FRUIT_TONE = { good: '#17704A', neutral: '#16302B', warn: '#B26A00', bad: '#B3261E' }
 
 /** 온실 단면 그림 — 외부/내부 값과 낮·밤, 날씨, 관수, 과실 상태를 한 장에 보여 준다 */
-export default function GreenhouseScene({ s, finalIrrigation, fruitBrix = s.brix, simHours = 0, signal = 'continue' }) {
+export default function GreenhouseScene({ s, finalIrrigation, fruitBrix = s.brix, simHours = 0, signal = 'continue', sim = null }) {
   const fruit = fruitLook(fruitBrix, simHours)
   const droop = signal === 'alarm' ? 28 : signal === 'brake' ? 12 : 0
   const leaf = signal === 'alarm' ? '#9CAF4A' : signal === 'brake' ? '#6FA544' : '#43A047'
@@ -126,10 +130,26 @@ export default function GreenhouseScene({ s, finalIrrigation, fruitBrix = s.brix
         </g>
         {/* 라벨: 과실 상태 */}
         <g>
-          <rect x="14" y="178" width="132" height="76" rx="10" fill="rgba(255,255,255,0.92)" stroke={FRUIT_TONE[fruit.tone]} strokeWidth="2" />
-          <text x="26" y="197" fontSize="12" fontWeight="700" fill="#16302B">🍓 과실 상태</text>
-          <text x="26" y="221" fontSize="18" fontWeight="800" fill={FRUIT_TONE[fruit.tone]}>{fruitBrix.toFixed(1)}°Bx</text>
-          <text x="26" y="243" fontSize="13" fontWeight="700" fill={FRUIT_TONE[fruit.tone]}>{fruit.label}</text>
+          <rect x="10" y="146" width="136" height="112" rx="10" fill="rgba(255,255,255,0.94)" stroke={FRUIT_TONE[fruit.tone]} strokeWidth="2" />
+          <text x="22" y="164" fontSize="12" fontWeight="700" fill="#16302B">🍓 과실 상태</text>
+          <text x="138" y="164" fontSize="12" fontWeight="800" fill="#17704A" textAnchor="end">{simHours > 0 ? `${Math.floor(simHours / 24) + 1}일째` : '시작 전'}</text>
+          <text x="22" y="188" fontSize="20" fontWeight="800" fill={FRUIT_TONE[fruit.tone]}>{fruitBrix.toFixed(1)}°Bx</text>
+          <text x="22" y="207" fontSize="12" fontWeight="700" fill={FRUIT_TONE[fruit.tone]}>{fruit.label}</text>
+          <line x1="20" x2="138" y1="216" y2="216" stroke="#D3DBD0" />
+          {sim && (
+            <>
+              <text x="22" y="232" fontSize="11" fontWeight="700" fill="#16302B">🎯 목표 {sim.goalBrix.toFixed(1)}°Bx</text>
+              <text x="22" y="250" fontSize="12" fontWeight="800" fill={sim.reachedAt !== null || sim.eta.reached ? '#17704A' : '#B3261E'}>
+                {sim.reachedAt !== null
+                  ? `✅ ${Math.floor(sim.reachedAt / 24) + 1}일째 도달`
+                  : sim.eta.reached
+                    ? sim.eta.hours === 0
+                      ? '✅ 이미 도달'
+                      : `약 ${etaText(sim.eta.hours)} 뒤 도달`
+                    : `⚠ 도달 어려움 (최대 ${sim.eta.best.toFixed(1)})`}
+              </text>
+            </>
+          )}
         </g>
       </svg>
       <figcaption className="scene-cap">테스트값으로 그린 화면입니다 · 실제 온실 영상이 아닙니다 · 딸기는 처음엔 홀쭉하고, 위 ‘생육 예측’을 돌려 당도가 오르면 통통해집니다 · 잎이 처지면 물 부족입니다</figcaption>

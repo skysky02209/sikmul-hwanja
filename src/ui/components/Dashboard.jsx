@@ -70,6 +70,7 @@ export default function Dashboard({ snapshot, settings, onApply, sim }) {
         finalIrrigation={irrigation.final.value}
         fruitBrix={sim.brix}
         simHours={sim.hours}
+        sim={sim}
         signal={sim.conditions.signal.state}
       />
 
