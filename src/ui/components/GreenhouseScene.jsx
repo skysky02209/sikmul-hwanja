@@ -18,7 +18,7 @@ export function fruitLook(brix, hours = 0, target = brix) {
   const sx = 0.62 + 0.88 * p // 홀쭉 → 통통
   const sy = 0.9 + 0.5 * p
   const color = p >= 0.66 ? '#C62828' : p >= 0.33 ? '#E53935' : p > 0.1 ? '#F08A5D' : '#9CCC65'
-  const label = hours === 0 ? '홀쭉 · 예측 전' : falling ? '↘ 당도 떨어지는 중' : level < 0.33 ? '홀쭉 · 당도 낮음' : p >= 0.66 ? '통통 · 고당도' : '차오르는 중'
+  const label = hours === 0 ? '홀쭉 · 예측 전' : falling ? '↘ 떨어지는 중' : level < 0.33 ? '홀쭉 · 당도 낮음' : p >= 0.66 ? '통통 · 고당도' : '차오르는 중'
   const tone = falling || (hours > 0 && level < 0.33) ? 'warn' : p >= 0.66 ? 'good' : 'neutral'
   return { sx, sy, color, label, tone, p, falling }
 }

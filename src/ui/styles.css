@@ -343,3 +343,7 @@ svg .th-target { stroke: var(--c-gold); stroke-width: 2; stroke-dasharray: 6 4; 
 .plant-sound .btn { min-height: 38px; padding: 6px 10px; font-size: 14px; }
 .demo-bar .btn { color: #16302B; background: #FFFFFF; }
 .demo-bar .btn.btn-primary { color: #FFFFFF; background: var(--c-green); border-color: #FFFFFF; }
+
+.app.demo-on { padding-bottom: 190px; }
+@keyframes pop-in { 0% { transform: scale(0.97); box-shadow: 0 0 0 4px color-mix(in srgb, var(--c-green) 35%, transparent); } 100% { transform: none; box-shadow: none; } }
+.verdict.pop { animation: pop-in 0.5s ease-out; }

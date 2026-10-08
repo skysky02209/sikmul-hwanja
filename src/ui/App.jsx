@@ -154,6 +154,8 @@ export default function App() {
           if (st.end) {
             sim.pause()
             sim.setSpeed(6)
+            // 끝 안내는 8초 뒤 자동으로 닫아 아래 버튼을 가리지 않게 한다
+            demoTimers.current.push(setTimeout(() => setDemo({ on: false, step: -1 }), 8000))
           }
         }, st.at),
       )
@@ -186,7 +188,7 @@ export default function App() {
   }
 
   return (
-    <div className="app">
+    <div className={`app ${demo.on ? 'demo-on' : ''}`}>
       <a className="skip" href="#main">본문으로 건너뛰기</a>
       <header className="topbar">
         <div className="brand">

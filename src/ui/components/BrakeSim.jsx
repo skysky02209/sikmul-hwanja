@@ -6,6 +6,7 @@ const STATE_TEXT = {
   brake: { cls: 'st-brake', icon: '🟠' },
   alarm: { cls: 'st-alarm', icon: '🔴' },
 }
+const MAX_DAYS = 10
 const won = (n) => `${n.toLocaleString('ko-KR')}만 원`
 
 /** 감량 구역 vs 대조 구역 일별 클릭 수 막대 그래프 */
@@ -95,7 +96,7 @@ export default function BrakeSim({ baseIrrigation, onApplyToSettings, onSignal }
             </li>
           ))}
         </ol>
-        <div className={`verdict ${today ? STATE_TEXT[today.state].cls : ''}`} role="status" aria-live="polite">
+        <div key={days} className={`verdict pop ${today ? STATE_TEXT[today.state].cls : ''}`} role="status" aria-live="polite">
           {today ? (
             <>
               <span aria-hidden="true">{STATE_TEXT[today.state].icon} </span>
@@ -112,8 +113,16 @@ export default function BrakeSim({ baseIrrigation, onApplyToSettings, onSignal }
           <p className="notice">📱 알림 예시: “오늘은 감량 멈춤 — 관수를 {stoppedAt}%로 한 계단 되돌리세요.”</p>
         )}
         <div className="btn-row">
-          <button type="button" className="btn btn-primary" onClick={() => setDays((d) => Math.min(d + 1, 10))} disabled={days >= 10}>
-            하루 진행 {stoppedAt === null && history.length < LEVELS.length ? `(다음 ${nextLevel}%)` : ''}
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={() => setDays((d) => (d >= MAX_DAYS ? 0 : d + 1))}
+          >
+            {days >= MAX_DAYS
+              ? `${MAX_DAYS}일 완료 — 처음부터 다시`
+              : stoppedAt !== null
+                ? `하루 진행 (${stoppedAt}% 유지 · ${days + 1}일차)`
+                : `하루 진행 (${days + 1}일차 · 관수 ${nextLevel}%)`}
           </button>
           <button type="button" className="btn" onClick={() => setDays(0)} disabled={days === 0}>
             처음부터
