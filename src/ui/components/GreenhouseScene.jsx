@@ -6,7 +6,7 @@ const SKY = {
 }
 
 /**
- * 과실 모양 — 테스트 설정으로 계산한 당도와 식물환자 판정으로 정한다 (실제 측정 아님)
+ * 과실(딸기) 모양 — 테스트 설정으로 계산한 당도와 식물환자 판정으로 정한다 (실제 측정 아님)
  * - 당도가 높을수록 과실이 커지고 색이 진해진다
  * - 물이 모자라(멈춤 신호·경보) 스트레스를 받으면 과실이 홀쭉해지고 잎이 처진다
  */
@@ -14,12 +14,18 @@ export function fruitLook(brix, signal) {
   const k = Math.min(1, Math.max(0, (brix - 4) / 6)) // 4°Bx → 0, 10°Bx 이상 → 1
   const size = 0.7 + 0.9 * k
   const thin = signal === 'alarm' ? 0.62 : signal === 'brake' ? 0.82 : 1
-  const color = signal === 'alarm' ? '#C9785E' : k >= 0.66 ? '#B71C1C' : k >= 0.33 ? '#E53935' : '#EF7B5A'
+  const color = signal === 'alarm' ? '#B5654F' : k >= 0.66 ? '#C1121F' : k >= 0.33 ? '#E63946' : '#F28482'
   const label =
     signal === 'alarm' ? '홀쭉 · 물 부족' : signal === 'brake' ? '살짝 홀쭉' : k >= 0.66 ? '통통 · 고당도' : k >= 0.33 ? '보통 · 보통 당도' : '작음 · 저당도'
   const tone = signal === 'alarm' ? 'bad' : signal === 'brake' ? 'warn' : k >= 0.66 ? 'good' : 'neutral'
   return { sx: size * thin, sy: size * (signal === 'alarm' ? 1.05 : 1), color, label, tone, droop: signal === 'alarm' ? 28 : signal === 'brake' ? 12 : 0, wrinkle: signal === 'alarm' }
 }
+
+/** 딸기 모양 (cx, cy 중심, 높이 약 22) */
+function strawberryPath(cx, cy) {
+  return `M${cx} ${cy - 9} C${cx + 10} ${cy - 11} ${cx + 12} ${cy - 1} ${cx + 7} ${cy + 6} C${cx + 4} ${cy + 10} ${cx + 1} ${cy + 13} ${cx} ${cy + 13} C${cx - 1} ${cy + 13} ${cx - 4} ${cy + 10} ${cx - 7} ${cy + 6} C${cx - 12} ${cy - 1} ${cx - 10} ${cy - 11} ${cx} ${cy - 9} Z`
+}
+const SEEDS = [[-5, -3], [0, -4], [5, -3], [-3, 2], [3, 2], [-5, 6], [0, 6], [5, 6], [-2, 10], [2, 10]]
 
 const FRUIT_TONE = { good: '#17704A', neutral: '#16302B', warn: '#B26A00', bad: '#B3261E' }
 
@@ -87,10 +93,13 @@ export default function GreenhouseScene({ s, finalIrrigation, fruitBrix = s.brix
               <ellipse cx={x + 11} cy="212" rx="12" ry="6" fill={leaf} style={{ ...anim, transformOrigin: 'left center', transform: `rotate(${fruit.droop}deg)` }} />
               <line x1={x + 4} y1="214" x2={x + 4} y2="226" stroke="#2E7D32" strokeWidth="2" />
               <g style={{ ...anim, transform: `scale(${fruit.sx}, ${fruit.sy})` }}>
-                <ellipse cx={x + 4} cy="236" rx="11" ry="11" fill={fruit.color} style={anim} />
-                <ellipse cx={x + 1} cy="232" rx="2.4" ry="1.6" fill="#FFFFFF" opacity={fruit.wrinkle ? 0.15 : 0.55} />
-                {fruit.wrinkle && <path d={`M${x} 231 q4 4 0 9 M${x + 8} 231 q-4 4 0 9`} stroke="#7A3B2B" strokeWidth="1" fill="none" opacity="0.7" />}
-                <path d={`M${x} 228 l4 -2 l4 2`} stroke="#2E7D32" strokeWidth="2" fill="none" strokeLinecap="round" />
+                {/* 딸기 */}
+                <path d={strawberryPath(x + 4, 237)} fill={fruit.color} style={anim} />
+                {SEEDS.map(([dx, dy]) => (
+                  <ellipse key={`${dx}${dy}`} cx={x + 4 + dx} cy={237 + dy} rx="0.9" ry="1.3" fill={fruit.wrinkle ? '#D9C27A' : '#F7D774'} />
+                ))}
+                {fruit.wrinkle && <path d={`M${x} 233 q3 5 1 11 M${x + 8} 233 q-3 5 -1 11`} stroke="#6E2A1E" strokeWidth="1" fill="none" opacity="0.6" />}
+                <path d={`M${x + 4} 228 l-6 -1 l4 3 l-3 3 l5 -2 l5 2 l-3 -3 l4 -3 z`} fill="#2E7D32" />
               </g>
             </g>
           ))}
@@ -117,7 +126,7 @@ export default function GreenhouseScene({ s, finalIrrigation, fruitBrix = s.brix
         {/* 라벨: 과실 상태 */}
         <g>
           <rect x="14" y="200" width="132" height="52" rx="10" fill="rgba(255,255,255,0.9)" stroke={FRUIT_TONE[fruit.tone]} strokeWidth="2" />
-          <text x="26" y="220" fontSize="12" fontWeight="700" fill="#16302B">🍅 과실 상태</text>
+          <text x="26" y="220" fontSize="12" fontWeight="700" fill="#16302B">🍓 과실 상태</text>
           <text x="26" y="242" fontSize="13" fontWeight="800" fill={FRUIT_TONE[fruit.tone]}>{fruit.label}</text>
         </g>
       </svg>
