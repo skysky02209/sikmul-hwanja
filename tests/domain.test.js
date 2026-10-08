@@ -134,3 +134,8 @@ describe('당도 반응 모형', () => {
     expect(plantSignal(10).state).toBe('continue')
   })
 })
+
+describe('관수량 0', () => {
+  it('기본 관수량 0이면 경보', () => expect(evaluateConditions({ ...DEFAULT_SETTINGS, baseIrrigation: 0, irrigationReduction: 0 }).signal.state).toBe('alarm'))
+  it('최종 관수량 0(감량=기본)이면 경보', () => expect(evaluateConditions({ ...DEFAULT_SETTINGS, baseIrrigation: 400, irrigationReduction: 400 }).signal.state).toBe('alarm'))
+})

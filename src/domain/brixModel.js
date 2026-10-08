@@ -27,7 +27,8 @@ export function vpd(temp, rh) {
 
 /** 관수 감량률(%) — 기본 관수량 대비 */
 export function deficitPct(base, reduction) {
-  if (!(base > 0)) return 0
+  // 기본 관수량이 0이면 물을 전혀 주지 않는 상태 → 감량률 100% (최대 가뭄)
+  if (!(base > 0)) return 100
   return Math.min(100, Math.max(0, (reduction / base) * 100))
 }
 
