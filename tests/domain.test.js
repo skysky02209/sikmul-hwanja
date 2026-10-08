@@ -142,10 +142,14 @@ describe('관수량 0', () => {
 
 import { fruitLook } from '../src/ui/components/GreenhouseScene.jsx'
 describe('과실 모양', () => {
-  it('당도가 높을수록 크다', () => expect(fruitLook(10, 'continue').sx).toBeGreaterThan(fruitLook(5, 'continue').sx))
-  it('경보면 홀쭉해진다', () => {
-    const a = fruitLook(8, 'alarm')
-    expect(a.sx).toBeLessThan(a.sy)
-    expect(a.label).toContain('홀쭉')
+  it('예측 전에는 홀쭉하다', () => {
+    const f = fruitLook(12, 0)
+    expect(f.sx).toBeLessThan(f.sy)
+    expect(f.label).toContain('홀쭉')
+  })
+  it('예측을 돌려 당도가 오르면 통통해진다', () => {
+    expect(fruitLook(10, 72).sx).toBeGreaterThan(fruitLook(10, 12).sx)
+    expect(fruitLook(8.5, 72).sx).toBeGreaterThan(fruitLook(6, 72).sx)
+    expect(fruitLook(10, 72).label).toContain('통통')
   })
 })

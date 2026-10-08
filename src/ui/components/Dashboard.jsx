@@ -68,7 +68,8 @@ export default function Dashboard({ snapshot, settings, onApply, sim }) {
       <GreenhouseScene
         s={sceneSettings}
         finalIrrigation={irrigation.final.value}
-        fruitBrix={simActive ? sim.brix : sim.conditions.target}
+        fruitBrix={sim.brix}
+        simHours={sim.hours}
         signal={sim.conditions.signal.state}
       />
 
