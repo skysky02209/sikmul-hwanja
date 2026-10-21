@@ -40,7 +40,7 @@ export const DEFAULT_SETTINGS = Object.freeze({
   outsideHumidity: 55,
   insideHumidity: 70,
   baseIrrigation: 400,
-  irrigationReduction: 40,
+  irrigationReduction: 80, // 감량 20% → 1구역 관수 80% (발표자료 화면과 같음)
   period: 'day',
   weather: 'clear',
   brix: 7.5,

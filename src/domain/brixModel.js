@@ -109,7 +109,7 @@ export function lightEffect(weather, period) {
 
 /** 식물환자 초음파 클릭 수(회/시간) — 관수 비율로 보간 (발표 작동 원리와 같은 가정) */
 const CLICK_POINTS = [
-  [100, 0.6], [90, 1.0], [80, 1.6], [70, 6], [60, 32], [50, 45], [0, 60],
+  [100, 0.6], [90, 1.0], [80, 1.6], [70, 4.8], [60, 18.2], [50, 30], [0, 35.4],
 ]
 export function clicksForWater(waterPct) {
   const w = Math.min(100, Math.max(0, waterPct))

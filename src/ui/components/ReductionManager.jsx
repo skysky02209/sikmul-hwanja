@@ -6,7 +6,7 @@ const CLS = { continue: 'st-ok', brake: 'st-brake', alarm: 'st-alarm' }
 const BRAKE_CLICKS = Math.round(CONTROL_CLICKS_PER_HOUR * THRESHOLDS.brakeRatio * 10) / 10
 
 /** 관수 단계별 감량 구역 vs 대조 구역 클릭 수 — 멈춤·경보 기준선은 점선 */
-function ClickChart({ level, onPick }) {
+function ClickChart({ level, factor = 1, onPick }) {
   const W = 340
   const H = 180
   const P = { l: 30, r: 8, t: 12, b: 26 }
@@ -15,7 +15,7 @@ function ClickChart({ level, onPick }) {
   const y = (v) => P.t + (1 - Math.min(v, max) / max) * (H - P.t - P.b)
   const brakeY = y(BRAKE_CLICKS)
   const alarmY = y(THRESHOLDS.alarmClicks)
-  const label = LEVELS.map((lv) => `관수 ${lv}% 감량 구역 ${judgeLevel(lv).clicks}회, 대조 ${CONTROL_CLICKS_PER_HOUR}회`).join('; ')
+  const label = LEVELS.map((lv) => `관수 ${lv}% 감량 구역 ${judgeLevel(lv, CONTROL_CLICKS_PER_HOUR, factor).clicks}회, 대조 ${CONTROL_CLICKS_PER_HOUR}회`).join('; ')
   return (
     <figure className="chart">
       <figcaption>
@@ -34,7 +34,7 @@ function ClickChart({ level, onPick }) {
         <text x={W - P.r} y={alarmY - 4} textAnchor="end" className="axis th-label">경보 기준 {THRESHOLDS.alarmClicks}회</text>
         <text x={W - P.r} y={brakeY - 4} textAnchor="end" className="axis th-label">감량 멈춤 기준 {BRAKE_CLICKS}회</text>
         {LEVELS.map((lv, i) => {
-          const j = judgeLevel(lv)
+          const j = judgeLevel(lv, CONTROL_CLICKS_PER_HOUR, factor)
           const x0 = P.l + i * bw
           const on = lv === level
           return (
@@ -60,7 +60,7 @@ function ClickChart({ level, onPick }) {
 export default function ReductionManager({ zones, selectedId, onSelectZone, onSetLevel }) {
   const zone = zones.find((z) => z.id === selectedId) ?? zones[0]
   const stopAt = recommendedStop()
-  const st = zoneStatus(zone.level)
+  const st = zoneStatus(zone.level, zone.factor)
   const stepLevel = LEVELS.reduce((best, l) => (Math.abs(l - zone.level) < Math.abs(best - zone.level) ? l : best), LEVELS[0])
 
   return (
@@ -79,7 +79,7 @@ export default function ReductionManager({ zones, selectedId, onSelectZone, onSe
       <article className="card">
         <ol className="steps" aria-label={`${zone.name} 관수 단계 — 눌러서 바꾸기`}>
           {LEVELS.map((lv) => {
-            const s = judgeLevel(lv).state
+            const s = judgeLevel(lv, CONTROL_CLICKS_PER_HOUR, zone.factor).state
             return (
               <li key={lv}>
                 <button
@@ -89,7 +89,7 @@ export default function ReductionManager({ zones, selectedId, onSelectZone, onSe
                   onClick={() => onSetLevel(zone.id, lv)}
                 >
                   {lv}%
-                  <span className="step-dot" aria-hidden="true">{judgeLevel(lv).icon}</span>
+                  <span className="step-dot" aria-hidden="true">{judgeLevel(lv, CONTROL_CLICKS_PER_HOUR, zone.factor).icon}</span>
                 </button>
               </li>
             )
@@ -106,7 +106,7 @@ export default function ReductionManager({ zones, selectedId, onSelectZone, onSe
         </div>
       </article>
 
-      <ClickChart level={stepLevel} onPick={(lv) => onSetLevel(zone.id, lv)} />
+      <ClickChart level={stepLevel} factor={zone.factor} onPick={(lv) => onSetLevel(zone.id, lv)} />
       <PlantSound clicks={st.clicks} state={st.state} />
       <p className="hint">당도·수량·소득은 <a href={SIM_HREF}>당도 시뮬레이터</a>에서 따로 봅니다. 이 화면은 "멈춤 판단"까지만 보여 줍니다.</p>
     </section>

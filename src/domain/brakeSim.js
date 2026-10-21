@@ -10,7 +10,7 @@ export const LEVELS = Object.freeze([100, 90, 80, 70, 60])
 
 /**
  * 단계별 가정값.
- * clicksPerHour: 감량 구역의 시간당 초음파 클릭 수 (Khait et al. 2023: 물 부족 시 약 35회/시간, 정상 1회 미만 → 그 사이를 단계로 나눈 가정)
+ * clicksPerHour: 감량 구역의 시간당 초음파 클릭 수 (Khait et al. 2023: 물 부족 시 35.4회/시간, 정상 1회 미만 → 그 사이를 단계로 나눈 가정, 발표자료 화면 값과 같음)
  * yield / price: 발표 9쪽 시나리오 (적정선 −12%·+30%, 선을 넘음 −24%·+30%) 및 사이값 보간
  * brix: 예시 당도 (토마토 가정)
  */
@@ -18,8 +18,8 @@ export const LEVEL_MODEL = Object.freeze({
   100: { clicksPerHour: 0.6, yield: 1.0, price: 1.0, brix: 6.0 },
   90: { clicksPerHour: 1.0, yield: 0.94, price: 1.15, brix: 6.8 },
   80: { clicksPerHour: 1.6, yield: 0.88, price: 1.3, brix: 7.6 },
-  70: { clicksPerHour: 6, yield: 0.76, price: 1.3, brix: 8.2 },
-  60: { clicksPerHour: 32, yield: 0.64, price: 1.3, brix: 8.6 },
+  70: { clicksPerHour: 4.8, yield: 0.76, price: 1.3, brix: 8.2 },
+  60: { clicksPerHour: 18.2, yield: 0.64, price: 1.3, brix: 8.6 },
 })
 
 export const CONTROL_CLICKS_PER_HOUR = 0.6

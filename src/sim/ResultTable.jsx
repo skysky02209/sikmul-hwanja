@@ -6,10 +6,12 @@ const won = (manwon) => `${manwon.toLocaleString('ko-KR')}만 원`
 export default function ResultTable({ picked, onPick }) {
   const rows = outcomeTable()
   const stop = recommendedStop()
+  const stopRow = rows.find((r) => r.level === stop) ?? rows[0]
+  const gain = stopRow.income - rows[0].income
   return (
     <article className="card sim-table" aria-labelledby="tbl-title">
       <div className="card-head">
-        <h2 id="tbl-title">관수 단계별 결과 (300평 기준)</h2>
+        <h2 id="tbl-title">관수 단계별 결과 <small className="h-sub">300평 기준</small></h2>
         <span className="chip chip-test">가정</span>
       </div>
       <div className="table-wrap">
@@ -30,7 +32,12 @@ export default function ResultTable({ picked, onPick }) {
           </tbody>
         </table>
       </div>
-      <p className="stop-note">⭐ <b>{stop}%</b>: 소리가 늘어나는 지점에서 멈추면 균형점 — 당도는 오르고 소득이 가장 높습니다. 더 줄이면 당도는 조금 더 오르지만 수량이 줄어 소득이 떨어집니다.</p>
+      <p className="tbl-note">300평 ≈ 10a(1,000㎡) · 수량·소득은 가정값</p>
+      <div className="stop-note">
+        <span>⭐ 소리가 늘어나는 지점에서 멈추면 균형점</span>
+        <b>멈춤 지점 {stop}% → 당도 {stopRow.brix.toFixed(1)}°Bx · 300평 소득 {won(stopRow.income)}</b>
+        <small>(감량 안 할 때 대비 {gain >= 0 ? '+' : ''}{won(gain)})</small>
+      </div>
     </article>
   )
 }

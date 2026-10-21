@@ -46,7 +46,7 @@ describe('데이터 제공자', () => {
   it('시뮬레이션 값은 모두 테스트 출처', () => {
     const s = simulationProvider.getSnapshot(DEFAULT_SETTINGS)
     expect(s.quality.brix.source).toBe('test')
-    expect(s.irrigation.final.value).toBe(360)
+    expect(s.irrigation.final.value).toBe(320)
   })
   it('센서는 연결되지 않음', () => {
     expect(sensorProvider.isConnected()).toBe(false)
@@ -61,7 +61,7 @@ describe('관수 장치 API 경계', () => {
     const r = await c.apply(buildIrrigationPlan(DEFAULT_SETTINGS))
     expect(c.mode).toBe('test')
     expect(r.sent).toBe(false)
-    expect(r.plan.finalLitersPerDay).toBe(360)
+    expect(r.plan.finalLitersPerDay).toBe(320)
   })
 })
 

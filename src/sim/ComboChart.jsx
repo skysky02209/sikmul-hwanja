@@ -21,7 +21,7 @@ export default function ComboChart({ picked, onPick }) {
   return (
     <figure className="card combo">
       <figcaption className="card-head">
-        <h2>당도(선) · 300평 소득(막대)</h2>
+        <h2>당도와 소득 <small className="h-sub">선 = 당도 · 막대 = 300평 소득</small></h2>
         <span className="chip chip-test">가정</span>
       </figcaption>
       <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={label}>

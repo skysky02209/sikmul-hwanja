@@ -16,6 +16,9 @@ import { clicksForWater } from './brixModel.js'
 export const STATE_NAME = Object.freeze({ continue: '정상', brake: '감량 멈춤', alarm: '경보' })
 export const STATE_ICON = Object.freeze({ continue: '🟢', brake: '🟠', alarm: '🔴' })
 
+/** 구역마다 소리 크기가 조금씩 다르다 (테스트값) */
+export const ZONE_FACTORS = Object.freeze([1, 1, 0.95, 1, 1.05, 1])
+
 /** 관수 구역 1곳의 넓이(평) — 감량 마이크 1대가 맡는 범위 (가정) */
 export const AREA_PER_ZONE = 300
 /** 감량 마이크 1대당 월 이용료(만 원, 가정) */
@@ -28,25 +31,25 @@ export function recommendedStop() {
 }
 
 /** 관수 단계(%)의 판정 — 단계 사이 값도 클릭 수를 보간해 판정한다 */
-export function judgeLevel(level, control = CONTROL_CLICKS_PER_HOUR) {
-  const clicks = clicksForWater(level)
+export function judgeLevel(level, control = CONTROL_CLICKS_PER_HOUR, factor = 1) {
+  const clicks = Math.round(clicksForWater(level) * factor * 10) / 10
   const state = clicks >= THRESHOLDS.alarmClicks ? 'alarm' : clicks >= control * THRESHOLDS.brakeRatio ? 'brake' : 'continue'
   return { state, clicks, control, name: STATE_NAME[state], icon: STATE_ICON[state] }
 }
 
 /** 구역 카드에 쓰는 상태 + 오늘의 지시 문장 */
-export function zoneStatus(level) {
-  const j = judgeLevel(level)
+export function zoneStatus(level, factor = 1) {
+  const j = judgeLevel(level, CONTROL_CLICKS_PER_HOUR, factor)
   const lv = Math.round(level)
   let instruction
   if (j.state === 'continue') {
     const next = LEVELS.find((l) => l < lv)
-    instruction = next ? `정상 — 내일 ${next}%로 한 계단 더 감량 가능` : '정상 — 지금 단계 유지'
+    instruction = next ? '오늘은 그대로 — 내일 한 계단 더 줄여도 됩니다' : '오늘은 그대로 — 지금 단계 유지'
   } else if (j.state === 'brake') {
     const back = [...LEVELS].reverse().find((l) => l > lv) ?? LEVELS[0]
     instruction = `오늘은 감량 멈춤 — ${back}%로 한 계단 복귀`
   } else {
-    instruction = `경보 — 지금 바로 관수하고 ${recommendedStop()}%로 복귀`
+    instruction = `지금 즉시 관수 — ${LEVELS[0]}%로 되돌리세요`
   }
   return { ...j, level: lv, instruction }
 }
