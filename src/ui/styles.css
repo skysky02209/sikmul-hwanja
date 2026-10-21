@@ -505,3 +505,5 @@ svg .brix-val, svg .val { paint-order: stroke; stroke: var(--c-surface); stroke-
 .zone-row { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; font: inherit; color: inherit; cursor: pointer; border: 1px solid var(--c-line); border-radius: 12px; padding: 10px 12px; }
 .zone-row > span:first-of-type { font-size: 14px; color: var(--c-sub); }
 .zone-row .zone-state { font-size: 13px; }
+
+.safety-note { margin: 10px 0 6px; padding: 10px 12px; border-radius: 10px; background: var(--c-surface-2); font-size: 13.5px; font-weight: 700; color: var(--c-sub); }

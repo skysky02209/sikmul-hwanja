@@ -21,8 +21,14 @@ export const ZONE_FACTORS = Object.freeze([1, 1, 0.95, 1, 1.05, 1])
 
 /** 관수 구역 1곳의 넓이(평) — 감량 마이크 1대가 맡는 범위 (가정) */
 export const AREA_PER_ZONE = 300
-/** 감량 마이크 1대당 월 이용료(만 원, 가정) */
-export const FEE_PER_MIC = 5
+/** 대여 요금 (만 원/월, 부가세 별도 가정) — 온실 기본료 + 감량 마이크 1대당, 자동 관수 포함 단일 요금 */
+export const FEE_PER_GREENHOUSE = 7.5
+export const FEE_PER_MIC = 7.5
+/** 구매 시 (가정) — 기본 세트 325만 원 + 앱 월 2만 원 */
+export const BUY_SET_PRICE = 325
+export const BUY_APP_FEE = 2
+/** 출시 시 자동 관수 안전장치 (발표자료 12쪽) */
+export const SAFETY_MIN_LEVEL = 60
 
 /** 소리가 처음 늘어나는 단계 바로 위 = 멈출 지점 (예: 70%에서 소리↑ → 80%) */
 export function recommendedStop() {
@@ -56,11 +62,12 @@ export function zoneStatus(level, factor = 1) {
 
 /**
  * 설치 계산 (가정)
- * 감량 마이크 = 올림(면적 ÷ 300)대, 대조 마이크 = 농가당 1대, 월 이용료 = 감량 마이크 수 × 5만 원
+ * 감량 마이크 = 올림(면적 ÷ 300)대, 대조 마이크 = 같은 온실·같은 작물마다 1대 (여기서는 온실 1동)
+ * 월 대여료 = 온실 7.5만 + 감량 마이크 수 × 7.5만 원 (예: 300평 15만, 900평 30만)
  */
 export function installPlan(area) {
   const a = Number(area)
   if (!Number.isFinite(a) || a <= 0) return null
   const reductionMics = Math.ceil(a / AREA_PER_ZONE)
-  return { area: a, zones: reductionMics, reductionMics, controlMics: 1, monthlyFee: reductionMics * FEE_PER_MIC }
+  return { area: a, zones: reductionMics, reductionMics, controlMics: 1, monthlyFee: FEE_PER_GREENHOUSE + reductionMics * FEE_PER_MIC }
 }

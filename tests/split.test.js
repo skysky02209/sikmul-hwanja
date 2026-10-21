@@ -9,12 +9,13 @@ import {
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 
 describe('설치 정보 계산 (가정)', () => {
-  it('900평 → 감량 마이크 3대, 대조 1대, 월 15만 원', () => {
+  it('900평 → 감량 마이크 3대, 대조 1대, 월 30만 원', () => {
     const p = installPlan(900)
     expect(p.reductionMics).toBe(3)
     expect(p.controlMics).toBe(1)
-    expect(p.monthlyFee).toBe(15)
+    expect(p.monthlyFee).toBe(30)
   })
+  it('300평 → 월 15만 원 (발표자료 20쪽)', () => expect(installPlan(300).monthlyFee).toBe(15))
   it('301평 → 감량 마이크 2대', () => expect(installPlan(301).reductionMics).toBe(2))
   it('0평·잘못된 값은 계산하지 않는다', () => {
     expect(installPlan(0)).toBeNull()

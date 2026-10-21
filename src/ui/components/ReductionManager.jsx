@@ -108,6 +108,7 @@ export default function ReductionManager({ zones, selectedId, onSelectZone, onSe
 
       <ClickChart level={stepLevel} factor={zone.factor} onPick={(lv) => onSetLevel(zone.id, lv)} />
       <PlantSound clicks={st.clicks} state={st.state} />
+      <p className="safety-note">🛡 출시 시 자동 관수 안전장치 · 감량 하한 60% · 센서 고장 시 100% 복귀 · 배지 수분 교차 확인 · 수동 조작 우선</p>
       <p className="hint">당도·수량·소득은 <a href={SIM_HREF}>당도 시뮬레이터</a>에서 따로 봅니다. 이 화면은 "멈춤 판단"까지만 보여 줍니다.</p>
     </section>
   )

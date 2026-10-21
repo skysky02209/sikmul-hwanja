@@ -277,7 +277,7 @@ export default function App() {
       )}
 
       <footer className="foot">
-        식물환자 · 관수 감량 경보 앱 (시제품) · 센서·관수 장치 연동 준비 중 · <a href={SIM_HREF}>당도 시뮬레이터</a>
+        식물환자 · 관수 감량 경보 앱 (시제품) · 출시 시 환경제어기 연동으로 감량·복귀·즉시 관수 자동 · <a href={SIM_HREF}>당도 시뮬레이터</a>
       </footer>
     </div>
   )
