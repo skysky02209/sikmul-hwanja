@@ -1,6 +1,6 @@
 import { ALERT_KIND, buildAlertMessage, gmailComposeLink } from '../../api/alertMailer.js'
 
-const KIND_TEXT = { alarm: '경보', brake: '멈춤 신호', test: '테스트' }
+const KIND_TEXT = { alarm: '경보', brake: '감량 멈춤', test: '테스트' }
 
 export default function AlertMailCard({ mail, onTriggerAlarm, onResetNormal, presetWhy }) {
   const { prefs, update, emailOk, notify, log, sending, lastResult } = mail
@@ -15,7 +15,7 @@ export default function AlertMailCard({ mail, onTriggerAlarm, onResetNormal, pre
 
   return (
     <section className="group alert-mail" aria-labelledby="mail-title">
-      <h3 id="mail-title" className="mail-title">📧 경보 메일 알림</h3>
+      <h3 id="mail-title" className="mail-title">📧 경보 메일 알림 <span className="chip chip-soon">출시 시 카톡 알림톡</span></h3>
       <p className="hint">
         식물환자 판정이 <strong>경보</strong>(또는 감량 멈춤)로 바뀌면 입력한 주소로 메일을 보냅니다. 경보 중에 관수 값을 다시 바꿔도 다시 보냅니다. 같은 종류의 메일은 1분에 한 번만 보냅니다.
       </p>
@@ -49,7 +49,7 @@ export default function AlertMailCard({ mail, onTriggerAlarm, onResetNormal, pre
       </label>
       <label className="inline check">
         <input type="checkbox" checked={prefs.includeBrake} onChange={(e) => update({ includeBrake: e.target.checked })} />
-        <span>감량 멈춤 신호도 받기</span>
+        <span>감량 멈춤 알림도 받기</span>
       </label>
 
       <div className="btn-row">
@@ -68,7 +68,7 @@ export default function AlertMailCard({ mail, onTriggerAlarm, onResetNormal, pre
         </div>
       )}
       <div className="preset-table" role="note">
-        <p className="hint"><b>‘경보 상황 만들어 보기’</b>를 누르면 위 테스트 설정 값이 아래처럼 바뀌고(바뀐 칸은 잠깐 빛납니다) 경보 메일이 갑니다. 저장은 하지 않으니 ‘되돌리기’나 ‘정상으로 되돌리기’로 원래 값으로 돌아갈 수 있습니다.</p>
+        <p className="hint"><b>‘경보 상황 만들어 보기’</b>를 누르면 테스트 설정 값이 아래처럼 바뀌고(1구역 관수 60% → 경보)(바뀐 칸은 잠깐 빛납니다) 경보 메일이 갑니다. 저장은 하지 않으니 ‘되돌리기’나 ‘정상으로 되돌리기’로 원래 값으로 돌아갈 수 있습니다.</p>
         <table>
           <thead><tr><th>항목</th><th>🔴 경보 상황</th><th>🟢 정상</th></tr></thead>
           <tbody>

@@ -38,7 +38,7 @@ export function useAlertMail({ onStatus } = {}) {
 
   const notify = useCallback(
     async (kind, details = {}) => {
-      const name = kind === ALERT_KIND.ALARM ? '경보' : kind === ALERT_KIND.BRAKE ? '멈춤 신호' : '테스트'
+      const name = kind === ALERT_KIND.ALARM ? '경보' : kind === ALERT_KIND.BRAKE ? '감량 멈춤' : '테스트'
       if (!emailOk || !(prefs.enabled || kind === ALERT_KIND.TEST)) {
         if (kind !== ALERT_KIND.TEST) onStatus?.(`${name}가 떴지만 메일 알림이 꺼져 있어 보내지 않았습니다. 테스트 설정 아래에서 메일 주소를 넣고 알림을 켜 주세요.`)
         return null

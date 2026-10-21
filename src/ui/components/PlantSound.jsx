@@ -32,7 +32,7 @@ export default function PlantSound({ clicks, state }) {
       <p className="hint">
         {on
           ? `재생 중 — 1시간 동안의 소리(${on.c}회)를 5초로 줄여 ‘딸깍’ ${clicksInClip(on.c)}번으로 들려드립니다.`
-          : `물이 모자랄수록 ‘딸깍’ 소리가 잦아집니다. 지금 판정: ${state === 'alarm' ? '경보' : state === 'brake' ? '멈춤 신호' : '정상'}.`}{' '}
+          : `물이 모자랄수록 ‘딸깍’ 소리가 잦아집니다. 지금 판정: ${state === 'alarm' ? '경보' : state === 'brake' ? '감량 멈춤' : '정상'}.`}{' '}
         실제 소리는 사람이 못 듣는 초음파(40~80kHz)라, 들을 수 있는 소리로 바꾼 합성음입니다.
       </p>
     </div>

@@ -66,7 +66,7 @@ function Segmented({ legend, name, options, value, onChange }) {
   )
 }
 
-export default function SettingsPanel({ state, onSave, onReset, onRevert }) {
+export default function SettingsPanel({ state, onSave, onReset, onRevert, showQuality = true, title = '테스트 설정', hint = '입력한 값은 화면에 바로 미리 반영됩니다. 실제 센서 값이 아니라 테스트값입니다.' }) {
   const { draft, preview, errors, hasErrors, dirty, hasSaved, update } = state
   const f = (key) => (
     <NumberField key={key} id={`f-${key}`} spec={NUMERIC_FIELDS[key]} value={draft[key]} error={errors[key]} onChange={(v) => update(key, v)} />
@@ -75,10 +75,8 @@ export default function SettingsPanel({ state, onSave, onReset, onRevert }) {
 
   return (
     <section aria-labelledby="set-title" className="panel">
-      <h2 id="set-title" className="panel-title">테스트 설정</h2>
-      <p className="hint">
-        입력한 값은 대시보드에 바로 미리 반영됩니다. 실제 센서 값이 아니라 테스트용 값입니다.
-      </p>
+      <h2 id="set-title" className="panel-title">{title}</h2>
+      <p className="hint">{hint}</p>
       <form
         className="settings"
         onSubmit={(e) => {
@@ -110,10 +108,12 @@ export default function SettingsPanel({ state, onSave, onReset, onRevert }) {
           <Segmented legend="낮 / 밤" name="period" options={PERIODS} value={draft.period} onChange={(v) => update('period', v)} />
           <Segmented legend="날씨" name="weather" options={WEATHERS} value={draft.weather} onChange={(v) => update('weather', v)} />
         </fieldset>
-        <fieldset className="group">
-          <legend>품질</legend>
-          {f('brix')}
-        </fieldset>
+        {showQuality && (
+          <fieldset className="group">
+            <legend>시작 당도 (테스트값)</legend>
+            {f('brix')}
+          </fieldset>
+        )}
 
         <div className="actions">
           <p className="save-state" aria-live="polite">

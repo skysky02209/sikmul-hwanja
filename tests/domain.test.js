@@ -117,9 +117,11 @@ describe('당도 반응 모형', () => {
   it('시간이 흐르면 목표 쪽으로 이동한다', () => {
     const up = stepBrix(6, 9, 48)
     const down = stepBrix(8, 4, 48)
-    expect(up).toBeGreaterThan(6.5)
-    expect(up).toBeLessThan(9)
-    expect(down).toBeLessThan(7.5)
+    // 하루 변화 폭 상한(±0.25°Bx/일) 때문에 이틀이면 최대 0.5°Bx만 움직인다
+    expect(up).toBeGreaterThan(6.4)
+    expect(up).toBeLessThanOrEqual(6.5 + 1e-9)
+    expect(down).toBeLessThan(7.6)
+    expect(down).toBeGreaterThanOrEqual(7.5 - 1e-9)
   })
   it('VPD 계산', () => expect(vpd(25, 70)).toBeCloseTo(0.95, 1))
   it('과도한 감량은 오히려 당도 기여가 줄어든다', () => {

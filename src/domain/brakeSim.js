@@ -28,7 +28,7 @@ export const CONTROL_CLICKS_PER_HOUR = 0.6
 export const THRESHOLDS = Object.freeze({ brakeRatio: 3, alarmClicks: 15 })
 
 /**
- * 10a 소득 모형 — 발표 9쪽 수치를 그대로 재현하도록 역산한 값.
+ * 300평(약 10a) 소득 모형 — 발표자료 수치를 그대로 재현하도록 역산한 값.
  * 소득 = 조수입 × 수량비 × 단가비 − 경영비
  * 조수입 4,201.4만 원, 경영비 1,764.4만 원 → 기준 2,437 / 적정 3,042 / 선을 넘음 2,387
  */
@@ -42,9 +42,9 @@ export function incomeAt(level) {
 /** 한 단계의 판정 */
 export function judge(level, control = CONTROL_CLICKS_PER_HOUR) {
   const clicks = LEVEL_MODEL[level].clicksPerHour
-  if (clicks >= THRESHOLDS.alarmClicks) return { state: 'alarm', clicks, control, label: '즉시 경보 · 바로 관수' }
-  if (clicks >= control * THRESHOLDS.brakeRatio) return { state: 'brake', clicks, control, label: '오늘은 감량 멈춤 · 한 계단 복귀' }
-  return { state: 'continue', clicks, control, label: '계속 감량 가능' }
+  if (clicks >= THRESHOLDS.alarmClicks) return { state: 'alarm', clicks, control, label: '경보 · 즉시 관수' }
+  if (clicks >= control * THRESHOLDS.brakeRatio) return { state: 'brake', clicks, control, label: '감량 멈춤 · 한 계단 복귀' }
+  return { state: 'continue', clicks, control, label: '정상 · 감량 계속 가능' }
 }
 
 /**

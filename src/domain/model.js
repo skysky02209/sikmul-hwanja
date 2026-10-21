@@ -30,7 +30,7 @@ export const NUMERIC_FIELDS = Object.freeze({
   insideHumidity: { label: '내부 습도', unit: '%', min: 0, max: 100, step: 1, group: 'climate' },
   baseIrrigation: { label: '기본 관수량', unit: 'L/일', min: 0, max: 5000, step: 1, group: 'irrigation' },
   irrigationReduction: { label: '관수 감량값', unit: 'L/일', min: 0, max: 5000, step: 1, group: 'irrigation' },
-  brix: { label: '당도', unit: '°Bx', min: 0, max: 30, step: 0.1, group: 'quality' },
+  brix: { label: '시작 당도', unit: '°Bx', min: 0, max: 30, step: 0.1, group: 'quality' },
 })
 
 /** 기본 테스트값 (토마토 시설 재배를 가정한 예시값) */

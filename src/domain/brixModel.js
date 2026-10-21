@@ -136,9 +136,9 @@ export function yieldIndex(d) {
 export function plantSignal(d) {
   const clicks = clicksForWater(100 - d)
   const control = 0.6
-  if (clicks >= 15) return { state: 'alarm', clicks, label: '경보 — 즉시 관수' }
-  if (clicks >= control * 3) return { state: 'brake', clicks, label: '멈춤 신호 — 감량 중단·한 계단 복귀' }
-  return { state: 'continue', clicks, label: '정상 — 감량 계속 가능' }
+  if (clicks >= 15) return { state: 'alarm', clicks, label: '경보 · 즉시 관수' }
+  if (clicks >= control * 3) return { state: 'brake', clicks, label: '감량 멈춤 · 한 계단 복귀' }
+  return { state: 'continue', clicks, label: '정상 · 감량 계속 가능' }
 }
 
 /**
@@ -159,9 +159,24 @@ export function evaluateConditions(s) {
 }
 
 /** 시뮬레이션 1시간 진행 */
+/**
+ * 과실 당도는 몇 주에 걸쳐 천천히 변한다. 그래서 두 가지 제한을 둔다 (모두 가정값).
+ *  - 하루 변화 폭 상한: ±0.25°Bx/일 (시간당 ±0.25/24). 7일 내내 나쁜 조건이어도 변화는 1.75°Bx 이하.
+ *  - 하한: 기본 당도(BASE_BRIX) − 0.5°Bx. 나쁜 조건이 계속돼도 이 아래로는 내려가지 않는다.
+ */
+export const DAILY_MAX_CHANGE = 0.25
+export const BRIX_FLOOR = Math.round((BASE_BRIX - 0.5) * 10) / 10
+
 export function stepBrix(current, target, hours = 1) {
+  const cap = DAILY_MAX_CHANGE / 24
   let b = current
-  for (let i = 0; i < hours; i += 1) b += (target - b) * HOURLY_APPROACH
+  for (let i = 0; i < hours; i += 1) {
+    let d = (target - b) * HOURLY_APPROACH
+    d = Math.max(-cap, Math.min(cap, d))
+    const next = b + d
+    // 내려갈 때만 하한을 적용 (처음부터 하한보다 낮게 입력한 값은 그대로 둔다)
+    b = d < 0 ? Math.max(next, Math.min(b, BRIX_FLOOR)) : next
+  }
   return Math.round(b * 1000) / 1000
 }
 

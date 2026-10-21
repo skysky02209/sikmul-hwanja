@@ -18,7 +18,7 @@ export const ALERT_KIND = Object.freeze({
   TEST: 'test',
 })
 
-const KIND_LABEL = { alarm: '🔴 경보 — 즉시 관수 필요', brake: '🟠 감량 멈춤 신호', test: '🧪 테스트 메일' }
+const KIND_LABEL = { alarm: '🔴 경보 — 즉시 관수 필요', brake: '🟠 감량 멈춤 — 한 계단 복귀', test: '🧪 테스트 메일' }
 
 /** 메일 제목·본문 만들기 (순수 함수) */
 export function buildAlertMessage({ kind, details = {}, appUrl, at = new Date() }) {
@@ -32,6 +32,7 @@ export function buildAlertMessage({ kind, details = {}, appUrl, at = new Date() 
     `${KIND_LABEL[kind] ?? kind}`,
     `시각: ${time}`,
     details.source && `발생 위치: ${details.source}`,
+    details.zone && `구역: ${details.zone}`,
     details.deficit !== undefined && `관수 감량률: ${details.deficit}%`,
     details.level !== undefined && `관수 단계: ${details.level}%`,
     details.clicks !== undefined && `초음파 클릭 수: ${details.clicks}회/시간 (대조 구역 0.6회)`,

@@ -1,6 +1,5 @@
 import { SPEEDS, formatElapsed, formatDuration } from '../useCropSim.js'
-import { BASE_BRIX } from '../../domain/brixModel.js'
-import PlantSound from './PlantSound.jsx'
+import { BASE_BRIX, BRIX_FLOOR, DAILY_MAX_CHANGE } from '../../domain/brixModel.js'
 
 const TONE_ICON = { good: '▲', bad: '▼', warn: '▽', neutral: '•' }
 const SIGNAL_CLS = { continue: 'st-ok', brake: 'st-brake', alarm: 'st-alarm' }
@@ -52,6 +51,9 @@ export default function GrowthSimCard({ sim, baseBrixInput }) {
       </div>
       <p className="hint">
         테스트 설정의 환경 조건으로 시간을 흘려 당도가 어떻게 변하는지 계산합니다. 조건이 좋으면 당도가 오르고, 나쁘면 떨어집니다. 실행 중에도 설정을 바꾸면 바로 반영됩니다.
+      </p>
+      <p className="notice model-rule">
+        과실 당도는 몇 주에 걸쳐 천천히 변하므로 <b>하루 변화 폭은 ±{DAILY_MAX_CHANGE}°Bx</b>, <b>하한은 {BRIX_FLOOR.toFixed(1)}°Bx</b>(기본 당도 {BASE_BRIX}°Bx − 0.5)로 제한했습니다. <span className="chip chip-test">가정</span>
       </p>
 
       <div className="sim-controls">
@@ -149,12 +151,11 @@ export default function GrowthSimCard({ sim, baseBrixInput }) {
       </ul>
 
       <div className={`verdict ${SIGNAL_CLS[conditions.signal.state]}`}>
-        <strong>식물환자 판정: {conditions.signal.label}</strong>
+        <strong>이 조건의 판정: {conditions.signal.label}</strong>
         <span className="verdict-sub">
           관수 감량 {conditions.deficit}% → 예상 초음파 {conditions.signal.clicks}회/시간 (대조 0.6회) · 예상 수량 {conditions.yieldPct}%
         </span>
       </div>
-      <PlantSound clicks={conditions.signal.clicks} state={conditions.signal.state} />
       <p className="hint">
         당도만 보면 더 말릴수록 좋아 보이지만 수량이 줄어듭니다. 식물환자는 소리가 늘어나는 지점에서 감량을 멈춰 당도와 수량의 균형을 잡습니다.
         {hours === 0 && ` 시작 당도는 테스트 설정의 당도(${baseBrixInput}°Bx)입니다.`}
