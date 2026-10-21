@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { SIM_HREF } from './links.js'
 import { useTestSettings } from './useTestSettings.js'
 import SettingsPanel from './components/SettingsPanel.jsx'
 import ZoneCards from './components/ZoneCards.jsx'
@@ -225,7 +226,7 @@ export default function App() {
       </header>
       <div className="banner banner-one" role="note">
         <strong>테스트 모드</strong> · 센서 연동 전, 입력값으로 동작합니다
-        <a className="page-link" href="./simulator.html">당도 시뮬레이터 보기 →</a>
+        <a className="page-link" href={SIM_HREF}>당도 시뮬레이터 보기 →</a>
       </div>
 
       <nav className="sec-nav" aria-label="화면 바로가기">
@@ -305,7 +306,7 @@ export default function App() {
       )}
 
       <footer className="foot">
-        식물환자 · 관수 감량 경보 앱 (시제품) · 센서·관수 장치 연동 준비 중 · <a href="./simulator.html">당도 시뮬레이터</a>
+        식물환자 · 관수 감량 경보 앱 (시제품) · 센서·관수 장치 연동 준비 중 · <a href={SIM_HREF}>당도 시뮬레이터</a>
       </footer>
     </div>
   )

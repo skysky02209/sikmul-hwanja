@@ -1,4 +1,5 @@
 import { LEVELS, THRESHOLDS, CONTROL_CLICKS_PER_HOUR, judgeLevel, zoneStatus, recommendedStop } from '../../domain/sharedModel.js'
+import { SIM_HREF } from '../links.js'
 import PlantSound from './PlantSound.jsx'
 
 const CLS = { continue: 'st-ok', brake: 'st-brake', alarm: 'st-alarm' }
@@ -107,7 +108,7 @@ export default function ReductionManager({ zones, selectedId, onSelectZone, onSe
 
       <ClickChart level={stepLevel} onPick={(lv) => onSetLevel(zone.id, lv)} />
       <PlantSound clicks={st.clicks} state={st.state} />
-      <p className="hint">당도·수량·소득은 <a href="./simulator.html">당도 시뮬레이터</a>에서 따로 봅니다. 이 화면은 "멈춤 판단"까지만 보여 줍니다.</p>
+      <p className="hint">당도·수량·소득은 <a href={SIM_HREF}>당도 시뮬레이터</a>에서 따로 봅니다. 이 화면은 "멈춤 판단"까지만 보여 줍니다.</p>
     </section>
   )
 }

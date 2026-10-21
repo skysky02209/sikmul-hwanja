@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { APP_HREF } from '../ui/links.js'
 import { useTestSettings } from '../ui/useTestSettings.js'
 import { useCropSim } from '../ui/useCropSim.js'
 import SettingsPanel from '../ui/components/SettingsPanel.jsx'
@@ -36,7 +37,7 @@ export default function SimulatorApp() {
             <p>물을 줄이면 당도는 오르지만, 너무 줄이면 소득이 떨어진다</p>
           </div>
         </div>
-        <a className="btn page-link-btn" href="./index.html">← 식물환자 앱으로</a>
+        <a className="btn page-link-btn" href={APP_HREF}>← 식물환자 앱으로</a>
       </header>
       <div className="sim-notice" role="note">
         📘 공개 연구 수치에 맞춘 <b>교육용 시뮬레이션</b> · 실측값이 아니며 파일럿 실험으로 검증 예정
@@ -79,7 +80,7 @@ export default function SimulatorApp() {
           </div>
         </section>
       </main>
-      <footer className="foot">식물환자 당도 시뮬레이터 (교육용) · <a href="./index.html">식물환자 앱</a></footer>
+      <footer className="foot">식물환자 당도 시뮬레이터 (교육용) · <a href={APP_HREF}>식물환자 앱</a></footer>
     </div>
   )
 }

@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>식물환자 · 이동 중</title>
+<script>
+  // 주소를 조금 틀리게 쳐도(예: /sikmul-hwanja/simulator) 알맞은 페이지로 보낸다
+  (function () {
+    var p = location.pathname;
+    var i = p.indexOf('/sikmul-hwanja');
+    var base = i >= 0 ? p.slice(0, i) + '/sikmul-hwanja/' : '/';
+    var dest = /simul|시뮬|sim\b/i.test(decodeURIComponent(p)) ? base + 'simulator.html' : base;
+    location.replace(dest + location.search + location.hash);
+  })();
+</script>
+</head>
+<body><p>식물환자 페이지로 이동합니다… <a href="/sikmul-hwanja/">여기를 누르세요</a></p></body>
+</html>

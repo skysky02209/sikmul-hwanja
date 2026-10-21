@@ -6,6 +6,8 @@ import { resolve } from 'node:path'
 export default defineConfig({
   base: './',
   plugins: [react()],
+  // 배포 번호 — 페이지 사이 링크에 붙여 예전 캐시를 피한다
+  define: { __BUILD_ID__: JSON.stringify(new Date().toISOString().slice(0, 16).replace(/[-:T]/g, '')) },
   server: { port: 5173, open: false },
   // GitHub Pages: main 브랜치 /docs 폴더를 그대로 게시
   build: {
